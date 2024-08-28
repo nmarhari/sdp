@@ -13,7 +13,7 @@ def upload_image():
         return jsonify({"error": "No image uploaded"}), 400
     
     image = request.files['image']
-    prompt = "How many grams of carbs are in the food in this image respond in JSON format with an integer corresponding to the amount of carbs"
+    prompt = "How many grams of carbs are in the food in this image respond in only JSON format with an integer corresponding to the amount of carbs"
     
     # Call OpenAI API
     try:
