@@ -93,7 +93,7 @@ This use case allows the user to upload a photo of a meal, which the system proc
   - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try login to Dexcom, and redirects them to [Use Case 1](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md#L1)
 
 - **Incorrect Carb-to-Insulin Ratio**:  
-  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it and redirects them to [Use Case 3](https://github.com/nmarhari/sdp/lab4/blob/documentation/usecase.md#L102) before processing the request.
+  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it and redirects them to [Use Case 3](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md#L102) before processing the request.
 
 ---
 
