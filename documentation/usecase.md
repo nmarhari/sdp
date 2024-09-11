@@ -1,17 +1,10 @@
-# Use Case: Dexcom Login
+## Use Case 1: Dexcom Login and Setup
 
-## Use case number: 1
-
-### Use case name: Dexcom Login and Setup
-
-### Description and goal:
+### Description:
 This use case allows the user to log in with their Dexcom account and grant the app access to their real-time blood glucose data.
 
 ### Actor:
-- **User**: A person with diabetes using a Dexcom continuous glucose monitor (CGM).
-
-### Primary actor:
-- **User**
+- **Primary User**: A person with diabetes using a Dexcom continuous glucose monitor (CGM).
 
 ### Stakeholders:
 - **Users**: Want real-time glucose data to help manage their insulin doses.
@@ -45,20 +38,13 @@ This use case allows the user to log in with their Dexcom account and grant the 
 
 ---
 
-# Use Case: Estimating Insulin Dosage from Food Image
+# Use Case #02: Estimating Insulin Dosage from Food Image
 
-## Use case number: 2
-
-### Use case name: Estimating Insulin Dosage from Food Image
-
-### Description and goal:
+### Description:
 This use case allows the user to upload a photo of a meal, which the system processes to estimate the number of carbohydrates and suggest the appropriate insulin dosage based on the user's carb-to-insulin ratio and real-time blood glucose levels.
 
 ### Actor:
 - **User**: A person with diabetes requiring insulin management.
-
-### Primary actor:
-- **User**
 
 ### Stakeholders:
 - **Users**: Want an accurate and easy way to calculate insulin dosage for meals.
