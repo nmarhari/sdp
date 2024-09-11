@@ -1,6 +1,6 @@
 # Use Case: Estimating Insulin Dosage from Food Image
 
-## Use case number: UC-002
+## Use case number: UC-001
 
 ### Use case name: Estimating Insulin Dosage from Food Image
 
@@ -33,10 +33,11 @@ This use case allows the user to upload a photo of a meal, which the system proc
 ### Basic flow:
 1. The user takes a photo of the food item.
 2. The user uploads the photo through the app.
-3. The system sends the photo to OpenAI's API to identify the food and estimate its carbohydrate content.
+3. The user logs into the Dexcom API.
 4. The system retrieves the user's real-time blood glucose levels using the Dexcom API.
-5. The system uses the carb-to-insulin ratio provided by the user to calculate the required insulin dosage.
-6. The system returns the insulin dosage estimate to the user.
+5. The system sends the photo to OpenAI's API to identify the food and estimate its carbohydrate content.
+6. The system uses the carb-to-insulin ratio provided by the user to calculate the required insulin dosage.
+7. The system returns the insulin dosage estimate to the user.
 
 ### Alternative path:
 - **Unrecognized Image**:  
