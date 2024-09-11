@@ -1,43 +1,49 @@
-# Use case number: UC-001
+# Use Case: Estimating Insulin Dosage from Food Image
 
-## Use case name: User Login
+## Use case number: UC-002
 
-Description and goal: Allow registered users to securely log in to the app to access their personalized dashboard and content. The goal is to authenticate users based on their credentials.
+### Use case name: Estimating Insulin Dosage from Food Image
 
-Actor: User (registered app user)
+### Description and goal:
+This use case allows the user to upload a photo of a meal, which the system processes to estimate the number of carbohydrates and suggest the appropriate insulin dosage based on the user's carb-to-insulin ratio and real-time blood glucose levels.
 
-Primary actor: User
+### Actor:
+- **User**: A person with diabetes requiring insulin management.
 
-Stakeholders:
+### Primary actor:
+- **User**
 
-Users: Want secure and easy access to their accounts.
-Developers: Want the system to be reliable and secure.
-Company: Wants to ensure that only authorized users access the platform.
-Pre-conditions:
+### Stakeholders:
+- **Users**: Want an accurate and easy way to calculate insulin dosage for meals.
+- **Doctors/Healthcare Providers**: Benefit from accurate insulin management by their patients.
+- **Developers**: Ensure the system works reliably and securely.
 
-User has a registered account.
-The login system is online and operational.
-User has access to valid login credentials (username/password).
-Triggers:
+### Pre-conditions:
+- The user has entered a valid carb-to-insulin ratio in the app.
+- The system has access to real-time blood glucose levels via Dexcom's API.
+- The user has taken a clear photo of a food item.
 
-The user navigates to the login page and attempts to log in.
-Post-conditions:
+### Triggers:
+- The user uploads a photo of the food item and requests an insulin dosage estimation.
 
-Success: User is authenticated and redirected to their dashboard.
-Failure: User receives an error message and remains on the login page.
-Basic flow:
+### Post-conditions:
+- **Success**: The system returns an estimated insulin dosage to the user based on the carbohydrate content in the food and the user’s real-time blood glucose levels.
+- **Failure**: The system provides an error message if the image is unrecognizable or if data from the APIs cannot be retrieved.
 
-User navigates to the login page.
-User enters valid credentials (username and password).
-System validates the credentials.
-System redirects the user to their dashboard.
-Alternative path:
+### Basic flow:
+1. The user takes a photo of the food item.
+2. The user uploads the photo through the app.
+3. The system sends the photo to OpenAI's API to identify the food and estimate its carbohydrate content.
+4. The system retrieves the user's real-time blood glucose levels using the Dexcom API.
+5. The system uses the carb-to-insulin ratio provided by the user to calculate the required insulin dosage.
+6. The system returns the insulin dosage estimate to the user.
 
-Invalid Credentials:
-The user enters invalid credentials.
-The system displays an error message: "Invalid username or password."
-The user remains on the login page and can attempt to log in again.
-Forgotten Password:
-The user clicks "Forgot Password."
-The system prompts the user to enter their email for password recovery.
-The system sends a password reset email.
+### Alternative path:
+- **Unrecognized Image**:  
+  - If the system cannot identify the food in the photo, an error message is displayed: "Unable to recognize food. Please try again with a clearer image."
+  
+- **Missing Blood Glucose Data**:  
+  - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try again later."
+  
+- **Incorrect Carb-to-Insulin Ratio**:  
+  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it before processing the request.
