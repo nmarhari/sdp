@@ -125,7 +125,7 @@ Allows users to set or update their carb-to-insulin ratio, which is used to calc
 
 ---
 
-# Use Case: Viewing Meal and Insulin History
+~~# Use Case: Viewing Meal and Insulin History
 
 ## Use case number: 4
 
@@ -204,5 +204,5 @@ Allows users to generate a report of their meal and insulin history to share wit
 
 ### Alternative path:
 - **No Data Available**:  
-  - If there is no data available, the system displays a message: "No data available for report generation."
+  - If there is no data available, the system displays a message: "No data available for report generation."~~
 
