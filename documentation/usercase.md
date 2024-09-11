@@ -1,6 +1,6 @@
-#Use case number: UC-001
+# Use case number: UC-001
 
-##Use case name: User Login
+## Use case name: User Login
 
 Description and goal: Allow registered users to securely log in to the app to access their personalized dashboard and content. The goal is to authenticate users based on their credentials.
 
