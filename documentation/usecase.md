@@ -38,7 +38,7 @@ This use case allows the user to log in with their Dexcom account and grant the 
 
 ---
 
-# Use Case #02: Estimating Insulin Dosage from Food Image
+## Use Case 02: Estimating Insulin Dosage from Food Image
 
 ### Description:
 This use case allows the user to upload a photo of a meal, which the system processes to estimate the number of carbohydrates and suggest the appropriate insulin dosage based on the user's carb-to-insulin ratio and real-time blood glucose levels.
@@ -83,20 +83,13 @@ This use case allows the user to upload a photo of a meal, which the system proc
 
 ---
 
-# Use Case: Setting Carb-to-Insulin Ratio
+## Use Case 03: Setting or Updating Carb-to-Insulin Ratio
 
-## Use case number: 3
-
-### Use case name: Setting or Updating Carb-to-Insulin Ratio
-
-### Description and goal:
+### Description:
 Allows users to set or update their carb-to-insulin ratio, which is used to calculate the correct insulin dosage for their meals.
 
 ### Actor:
-- **User**: A person with diabetes requiring insulin management.
-
-### Primary actor:
-- **User**
+- **Primary User**: A person with diabetes requiring insulin management.
 
 ### Stakeholders:
 - **Users**: Need an accurate ratio for insulin dosage calculations.
@@ -124,85 +117,3 @@ Allows users to set or update their carb-to-insulin ratio, which is used to calc
   - If the input is not a valid decimal or integer, the system displays an error message: "Invalid ratio. Please enter a valid number."
 
 ---
-
-# Use Case: Viewing Meal and Insulin History
-
-## Use case number: 4
-
-### Use case name: Viewing Meal and Insulin History
-
-### Description and goal:
-Allows users to view a history of their meals, estimated insulin doses, and blood glucose levels for tracking and review purposes.
-
-### Actor:
-- **User**: A person with diabetes requiring insulin management.
-
-### Primary actor:
-- **User**
-
-### Stakeholders:
-- **Users**: Need to track their meals and insulin dosage over time for better diabetes management.
-- **Doctors/Healthcare Providers**: May review the logs during checkups to adjust treatment plans.
-
-### Pre-conditions:
-- The user has taken previous photos of meals and received insulin dosage estimates.
-
-### Triggers:
-- The user selects the option to view their meal and insulin history from the app menu.
-
-### Post-conditions:
-- **Success**: The system displays a log of meals, insulin estimates, and blood glucose levels.
-- **Failure**: An error message is displayed if there is no data available or a technical issue occurs.
-
-### Basic flow:
-1. The user selects the option to view their meal and insulin history.
-2. The system retrieves the saved data from previous sessions.
-3. The system displays a list of meals, corresponding insulin estimates, and glucose levels.
-4. The user can scroll through or filter the history by date.
-
-### Alternative path:
-- **No Data Available**:  
-  - If there are no previous meals recorded, the system displays a message: "No meal history available."
-
----
-
-# Use Case: Generating Insulin and Meal Reports for Healthcare Providers
-
-## Use case number: 5
-
-### Use case name: Generating Insulin and Meal Reports for Healthcare Providers
-
-### Description and goal:
-Allows users to generate a report of their meal and insulin history to share with their healthcare provider for analysis and advice.
-
-### Actor:
-- **User**: A person with diabetes requiring insulin management.
-
-### Primary actor:
-- **User**
-
-### Stakeholders:
-- **Users**: Need to share accurate data with their healthcare providers.
-- **Doctors/Healthcare Providers**: Need access to detailed data to adjust treatment plans.
-
-### Pre-conditions:
-- The user has recorded meal and insulin data in the app.
-
-### Triggers:
-- The user selects the option to generate a report from their history.
-
-### Post-conditions:
-- **Success**: The system generates a report and allows the user to share it via email or download it as a PDF.
-- **Failure**: The system displays an error if there is no data available or an issue occurs.
-
-### Basic flow:
-1. The user selects the option to generate a report.
-2. The system retrieves the meal and insulin data from the user’s history.
-3. The system formats the data into a readable report.
-4. The user selects to either download the report as a PDF or share it via email.
-5. The system confirms the report generation and download or sharing.
-
-### Alternative path:
-- **No Data Available**:  
-  - If there is no data available, the system displays a message: "No data available for report generation."
-
