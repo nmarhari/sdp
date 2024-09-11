@@ -76,10 +76,10 @@ This use case allows the user to upload a photo of a meal, which the system proc
   - If the system cannot identify the food in the photo, an error message is displayed: "Unable to recognize food. Please try again with a clearer image."
   
 - **Missing Blood Glucose Data**:  
-  - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try login to Dexcom, and redirects them to [Use Case 1](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md#use-case-number-1)
+  - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try login to Dexcom, and redirects them to [Use Case 1](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md#use-case-1-dexcom-login-and-setup)
 
 - **Incorrect Carb-to-Insulin Ratio**:  
-  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it and redirects them to [Use Case 3](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md#use-case-number-3) before processing the request.
+  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it and redirects them to [Use Case 3](https://github.com/nmarhari/sdp/blob/lab4/documentation/usecase.md) before processing the request.
 
 ---
 
