@@ -1,6 +1,6 @@
 # Use Case: Estimating Insulin Dosage from Food Image
 
-## Use case number: UC-001
+## Use case number: 1
 
 ### Use case name: Estimating Insulin Dosage from Food Image
 
