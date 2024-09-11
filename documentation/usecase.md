@@ -1,6 +1,6 @@
 # Use Case: Dexcom Login
 
-## Use case number: UC-001
+## Use case number: 1
 
 ### Use case name: Dexcom Login and Setup
 
@@ -39,7 +39,7 @@ This use case allows the user to log in with their Dexcom account and grant the 
 ### Alternative path:
 - **Login Failed**:  
   - If the user enters incorrect credentials, an error message is displayed: "Login failed. Please check your username and password."
-  
+
 - **Connection Failed**:  
   - If the app cannot connect to Dexcom’s API, an error message is displayed: "Unable to connect to Dexcom. Please try again later."
 
@@ -47,7 +47,7 @@ This use case allows the user to log in with their Dexcom account and grant the 
 
 # Use Case: Estimating Insulin Dosage from Food Image
 
-## Use case number: UC-002
+## Use case number: 2
 
 ### Use case name: Estimating Insulin Dosage from Food Image
 
@@ -90,16 +90,16 @@ This use case allows the user to upload a photo of a meal, which the system proc
   - If the system cannot identify the food in the photo, an error message is displayed: "Unable to recognize food. Please try again with a clearer image."
   
 - **Missing Blood Glucose Data**:  
-  - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try again later."
+  - If the Dexcom API is unavailable or fails to return data, an error message is displayed: "Unable to retrieve blood glucose levels. Please try login to Dexcom, and redirects them to the login page."
   
 - **Incorrect Carb-to-Insulin Ratio**:  
-  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it before processing the request.
- 
+  - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it and redirects them to [Use Case 3](https://github.com/nmarhari/sdp/edit/lab4/documentation/usecase.md#L102) before processing the request.
+
 ---
 
 # Use Case: Setting Carb-to-Insulin Ratio
 
-## Use case number: UC-003
+## Use case number: 3
 
 ### Use case name: Setting or Updating Carb-to-Insulin Ratio
 
@@ -141,7 +141,7 @@ Allows users to set or update their carb-to-insulin ratio, which is used to calc
 
 # Use Case: Viewing Meal and Insulin History
 
-## Use case number: UC-004
+## Use case number: 4
 
 ### Use case name: Viewing Meal and Insulin History
 
@@ -182,7 +182,7 @@ Allows users to view a history of their meals, estimated insulin doses, and bloo
 
 # Use Case: Generating Insulin and Meal Reports for Healthcare Providers
 
-## Use case number: UC-005
+## Use case number: 5
 
 ### Use case name: Generating Insulin and Meal Reports for Healthcare Providers
 
@@ -224,7 +224,7 @@ Allows users to generate a report of their meal and insulin history to share wit
 
 # Use Case: Insulin Reminder Notifications
 
-## Use case number: UC-006
+## Use case number: 6
 
 ### Use case name: Insulin Reminder Notifications
 
