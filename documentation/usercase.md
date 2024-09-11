@@ -94,3 +94,170 @@ This use case allows the user to upload a photo of a meal, which the system proc
   
 - **Incorrect Carb-to-Insulin Ratio**:  
   - If the carb-to-insulin ratio is missing or invalid, the system prompts the user to update it before processing the request.
+ 
+---
+
+# Use Case: Setting Carb-to-Insulin Ratio
+
+## Use case number: UC-003
+
+### Use case name: Setting or Updating Carb-to-Insulin Ratio
+
+### Description and goal:
+Allows users to set or update their carb-to-insulin ratio, which is used to calculate the correct insulin dosage for their meals.
+
+### Actor:
+- **User**: A person with diabetes requiring insulin management.
+
+### Primary actor:
+- **User**
+
+### Stakeholders:
+- **Users**: Need an accurate ratio for insulin dosage calculations.
+- **Doctors/Healthcare Providers**: May provide updated ratios based on medical advice.
+
+### Pre-conditions:
+- The user has an understanding of their correct carb-to-insulin ratio from their healthcare provider.
+
+### Triggers:
+- The user navigates to the settings or preferences page and selects the option to set or update their carb-to-insulin ratio.
+
+### Post-conditions:
+- **Success**: The system stores the updated ratio for use in future calculations.
+- **Failure**: The system displays an error if the input is invalid.
+
+### Basic flow:
+1. The user selects the option to update the carb-to-insulin ratio.
+2. The user enters the new ratio as a decimal or integer.
+3. The system validates the input.
+4. The system stores the updated ratio for future use.
+5. The system confirms the successful update.
+
+### Alternative path:
+- **Invalid Input**:  
+  - If the input is not a valid decimal or integer, the system displays an error message: "Invalid ratio. Please enter a valid number."
+
+---
+
+# Use Case: Viewing Meal and Insulin History
+
+## Use case number: UC-004
+
+### Use case name: Viewing Meal and Insulin History
+
+### Description and goal:
+Allows users to view a history of their meals, estimated insulin doses, and blood glucose levels for tracking and review purposes.
+
+### Actor:
+- **User**: A person with diabetes requiring insulin management.
+
+### Primary actor:
+- **User**
+
+### Stakeholders:
+- **Users**: Need to track their meals and insulin dosage over time for better diabetes management.
+- **Doctors/Healthcare Providers**: May review the logs during checkups to adjust treatment plans.
+
+### Pre-conditions:
+- The user has taken previous photos of meals and received insulin dosage estimates.
+
+### Triggers:
+- The user selects the option to view their meal and insulin history from the app menu.
+
+### Post-conditions:
+- **Success**: The system displays a log of meals, insulin estimates, and blood glucose levels.
+- **Failure**: An error message is displayed if there is no data available or a technical issue occurs.
+
+### Basic flow:
+1. The user selects the option to view their meal and insulin history.
+2. The system retrieves the saved data from previous sessions.
+3. The system displays a list of meals, corresponding insulin estimates, and glucose levels.
+4. The user can scroll through or filter the history by date.
+
+### Alternative path:
+- **No Data Available**:  
+  - If there are no previous meals recorded, the system displays a message: "No meal history available."
+
+---
+
+# Use Case: Generating Insulin and Meal Reports for Healthcare Providers
+
+## Use case number: UC-005
+
+### Use case name: Generating Insulin and Meal Reports for Healthcare Providers
+
+### Description and goal:
+Allows users to generate a report of their meal and insulin history to share with their healthcare provider for analysis and advice.
+
+### Actor:
+- **User**: A person with diabetes requiring insulin management.
+
+### Primary actor:
+- **User**
+
+### Stakeholders:
+- **Users**: Need to share accurate data with their healthcare providers.
+- **Doctors/Healthcare Providers**: Need access to detailed data to adjust treatment plans.
+
+### Pre-conditions:
+- The user has recorded meal and insulin data in the app.
+
+### Triggers:
+- The user selects the option to generate a report from their history.
+
+### Post-conditions:
+- **Success**: The system generates a report and allows the user to share it via email or download it as a PDF.
+- **Failure**: The system displays an error if there is no data available or an issue occurs.
+
+### Basic flow:
+1. The user selects the option to generate a report.
+2. The system retrieves the meal and insulin data from the user’s history.
+3. The system formats the data into a readable report.
+4. The user selects to either download the report as a PDF or share it via email.
+5. The system confirms the report generation and download or sharing.
+
+### Alternative path:
+- **No Data Available**:  
+  - If there is no data available, the system displays a message: "No data available for report generation."
+
+---
+
+# Use Case: Insulin Reminder Notifications
+
+## Use case number: UC-006
+
+### Use case name: Insulin Reminder Notifications
+
+### Description and goal:
+Send reminders to the user to estimate their insulin dosage when the system detects that they haven’t uploaded a meal photo for a while.
+
+### Actor:
+- **User**: A person with diabetes requiring insulin management.
+
+### Primary actor:
+- **User**
+
+### Stakeholders:
+- **Users**: Need reminders to ensure they regularly estimate their insulin doses.
+- **Doctors/Healthcare Providers**: May encourage regular insulin management and monitoring.
+
+### Pre-conditions:
+- The user has not used the app to estimate insulin for a certain period of time (e.g., several hours or days).
+
+### Triggers:
+- The system detects that the user has not uploaded a meal photo in a set timeframe.
+
+### Post-conditions:
+- **Success**: The system sends a notification reminding the user to estimate insulin dosage for their next meal.
+- **Failure**: The system does not send a reminder if the user has disabled notifications.
+
+### Basic flow:
+1. The system tracks the time since the user last uploaded a meal photo.
+2. If the user has not uploaded a photo within the set timeframe, the system sends a reminder notification.
+3. The user opens the app and uploads a new meal photo for estimation.
+4. The system processes the meal as per the insulin estimation use case.
+
+### Alternative path:
+- **User Disables Notifications**:  
+  - If notifications are disabled, the system does not send a reminder.
+
