@@ -4,49 +4,48 @@ import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store'; // Assuming you're using expo-secure-store
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 
-// Dexcom OAuth endpoints (replace with your own if needed)
+// Dexcom OAuth endpoints
 const discovery = {
   authorizationEndpoint: 'https://api.dexcom.com/v2/oauth2/login',
   tokenEndpoint: 'https://api.dexcom.com/v2/oauth2/token',
 };
 
 export default function DexcomLogin() {
-  const redirectUri = makeRedirectUri({
-    scheme: 'yourappscheme', // The scheme from app.json
-  });
+  // Create the redirect URI using the custom scheme
+  const redirectUri = "carbcounter://redirect"; // Replace with your custom scheme
 
-  // Create the request
+  console.log("Redirect URI:", redirectUri); // Log the URI to verify
+
+  // Create the authorization request
   const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: 'Exc6hrFQoZtwuSwD5i3OWHt1LuGLuQ47', // Replace with your Dexcom client ID
       scopes: ['offline_access'],
-      redirectUri: redirectUri, // Use the generated redirect URI
+      redirectUri: redirectUri,
     },
-    discovery // Dexcom's OAuth discovery information
+    discovery
   );
 
-  // Handle the response
+  // Handle the OAuth response
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
       console.log('Authorization code:', code);
-      // Exchange code for token
-      exchangeCodeForToken(code);
+      exchangeCodeForToken(code); // Call the token exchange function when we get the code
     }
   }, [response]);
 
+  // Exchange code for token using your Flask backend
   const exchangeCodeForToken = async (code) => {
-    // Implement token exchange via your backend
-    // This is a placeholder for demonstration purposes
     try {
-      const response = await fetch('https://your-backend.com/exchange-code', {
+      const response = await fetch('/exchange-code', {  // Replace with your Flask server URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ code, redirectUri }),
       });
-
+  
       const tokenResponse = await response.json();
       // Save the token to SecureStore
       await SecureStore.setItemAsync('dexcomAuthState', JSON.stringify(tokenResponse));
@@ -56,10 +55,12 @@ export default function DexcomLogin() {
     }
   };
 
+  // Fetch glucose data using the stored access token
   const fetchGlucoseData = async () => {
     try {
       const storedAuthState = await SecureStore.getItemAsync('dexcomAuthState');
-  
+      const authState = JSON.parse(storedAuthState);
+
       const response = await fetch('https://api.dexcom.com/v2/users/self/egvs', {
         method: 'GET',
         headers: {
@@ -75,6 +76,7 @@ export default function DexcomLogin() {
     }
   };
 
+  // Logout by deleting the stored access token
   const dexcomLogout = async () => {
     try {
       await SecureStore.deleteItemAsync('dexcomAuthState');
@@ -84,6 +86,7 @@ export default function DexcomLogin() {
     }
   };
 
+  // Return the JSX for the Dexcom login, data fetching, and logout buttons
   return (
     <View>
       <Button

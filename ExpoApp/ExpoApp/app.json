@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ExpoApp",
+    "name": "CarbCounter",
     "slug": "ExpoApp",
     "version": "1.0.0",
+    "scheme": "carbcounter",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -13,13 +13,30 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kent.carbCounter",
+      "infoPlist": {
+        "CFBundleURLSchemes": ["carbcounter"] 
+      }
     },
     "android": {
+      "package": "com.kent.carbCounter",  
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "intentFilters": [  
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "carbcounter",
+              "host": "redirect"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
