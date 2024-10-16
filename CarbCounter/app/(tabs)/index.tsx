@@ -35,7 +35,7 @@ function Home(props) {
             <Text style={styles.nor}>70</Text>
             <Text style={styles.mg}>mg</Text>
             <Image
-              source={require("../../assets/images/4.jpg")}
+              source={require("@/assets/images/4.jpg")}
               resizeMode="contain"
               style={styles.image}
             ></Image>
