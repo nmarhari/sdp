@@ -2,15 +2,18 @@ from flask import Flask, request, jsonify
 import requests
 from flask_cors import CORS
 import os
-from functions import openai_api_call
+from functions import openai_api_call, dexcom_api_request
 
 # Set your OpenAI API key as an environment variable for security
 # Configuration for Dexcom API (replace with your values)
-DEXCOM_CLIENT_ID = 'Exc6hrFQoZtwuSwD5i3OWHt1LuGLuQ47'
-DEXCOM_CLIENT_SECRET = 'KQBZBWTBkxVvE9qp'
+# DEXCOM_CLIENT_ID = 'Exc6hrFQoZtwuSwD5i3OWHt1LuGLuQ47'
+# DEXCOM_CLIENT_SECRET = 'KQBZBWTBkxVvE9qp'
+DEXCOM_CLIENT_ID = os.getenv('DEXCOM_CLIENT_ID')
+DEXCOM_CLIENT_SECRET = os.getenv('DEXCOM_CLIENT_SECRET')
 DEXCOM_TOKEN_URL = 'https://api.dexcom.com/v2/oauth2/token'
 DEXCOM_REDIRECT_URI = 'carbcounter://redirect'  # Must match the redirect URI in your React Native app
 openai_api_key = os.getenv('OPENAI_API_KEY')
+dexcom_token = os.getenv('DEXCOM_TOKEN')
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow cross-origin requests
@@ -101,19 +104,17 @@ def fetch_glucose_data():
 
     # Request glucose data from the Dexcom API
     try:
-        response = requests.get(
-            'https://api.dexcom.com/v2/users/self/egvs',
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
-            }
-        )
+        response = fetch_glucose_data(dexcom_token)
         
-        if response.status_code == 200:
-            glucose_data = response.json()
-            return jsonify(glucose_data), 200
-        else:
-            return jsonify({'error': 'Failed to fetch glucose data'}), response.status_code
+        # if response.status_code == 200:
+        if response == 200:
+            print(response, "200 response code ")
+
+        else: print('did not get 200. ', response)
+            # glucose_data = response.json()
+        #     return jsonify(glucose_data), 200
+        # else:
+        #     return jsonify({'error': 'Failed to fetch glucose data'}), response.status_code
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
