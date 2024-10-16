@@ -2,4 +2,4 @@
 node_modules
 __pycache__
 .expo/
-.DS_Store
+.DS_Store*

@@ -13,3 +13,7 @@ Make sure you have an OpenAI API Key. You can obtain one at https://platform.ope
 - yarn add expo
 - npm install expo-router
 - npx expo
+
+- python3 -m venv ~/.venv
+- source ~/.venv/bin/activate
+- python3 -m pip install -r requirements.txt
