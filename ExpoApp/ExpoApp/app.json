@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "CarbCounter",
-    "slug": "ExpoApp",
+    "slug": "carbcounter",
     "version": "1.0.0",
-    "scheme": "carbcounter",
+    "scheme": "carbcounter",  
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,25 +16,30 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kent.carbCounter",
       "infoPlist": {
-        "CFBundleURLSchemes": ["carbcounter"] 
+        "CFBundleURLSchemes": [
+          "carbcounter" 
+        ]
       }
     },
     "android": {
-      "package": "com.kent.carbCounter",  
+      "package": "com.kent.carbCounter",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "intentFilters": [  
+      "intentFilters": [
         {
           "action": "VIEW",
           "data": [
             {
-              "scheme": "carbcounter",
-              "host": "redirect"
+              "scheme": "carbcounter", 
+              "host": "redirect"        
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -45,10 +50,16 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store" 
     ],
     "experiments": {
-      "typedRoutes": true
-    }
+      "typedRoutes": true 
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f8b6744e-3386-4888-b60a-a81b9559d29a"
+      }
+    },
+    "owner": "cpavlic" 
   }
 }

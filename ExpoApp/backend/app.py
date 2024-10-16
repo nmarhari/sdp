@@ -10,13 +10,18 @@ from functions import openai_api_call, dexcom_api_request
 # DEXCOM_CLIENT_SECRET = 'KQBZBWTBkxVvE9qp'
 DEXCOM_CLIENT_ID = os.getenv('DEXCOM_CLIENT_ID')
 DEXCOM_CLIENT_SECRET = os.getenv('DEXCOM_CLIENT_SECRET')
-DEXCOM_TOKEN_URL = 'https://api.dexcom.com/v2/oauth2/token'
-DEXCOM_REDIRECT_URI = 'carbcounter://redirect'  # Must match the redirect URI in your React Native app
+DEXCOM_TOKEN_URL = 'https://sandbox-api.dexcom.com/v2/oauth2/token'
+DEXCOM_REDIRECT_URI = 'https://auth.expo.io/@cpavlic/carbcounter'  # Must match the redirect URI in your React Native app
 openai_api_key = os.getenv('OPENAI_API_KEY')
 dexcom_token = os.getenv('DEXCOM_TOKEN')
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS to allow cross-origin requests
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}})
+
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Hello, World!"})
 
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
@@ -96,26 +101,43 @@ def refresh_token():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Route to get glucose data from the Dexcom API
+
+@app.route('/fetch-glucose-data', methods=['GET'])
 @app.route('/fetch-glucose-data', methods=['GET'])
 def fetch_glucose_data():
-    # Extract the access token from the request headers
-    access_token = request.headers.get('Authorization').split(' ')[1]
+    # Extract the Authorization header
+    auth_header = request.headers.get('Authorization')
+    
+    if not auth_header:
+        return jsonify({'error': 'Authorization header is missing'}), 400
+    
+    # Ensure the token is formatted correctly as 'Bearer <token>'
+    if not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is malformed'}), 400
+    
+    access_token = auth_header.split(' ')[1]
 
-    # Request glucose data from the Dexcom API
     try:
-        response = fetch_glucose_data(dexcom_token)
+        # Define Dexcom API URL for glucose data
+        DEXCOM_API_URL = 'https://sandbox-api.dexcom.com/v2/users/self/egvs'
         
-        # if response.status_code == 200:
-        if response == 200:
-            print(response, "200 response code ")
+        # Make the request to Dexcom API using the access token
+        response = requests.get(DEXCOM_API_URL, headers={
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        })
+        
+        # If Dexcom responds with 200 OK
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            # Log the response from Dexcom for further debugging
+            print(f"Error from Dexcom API: {response.status_code}, {response.text}")
+            return jsonify({'error': 'Failed to fetch glucose data from Dexcom', 'status': response.status_code}), response.status_code
 
-        else: print('did not get 200. ', response)
-            # glucose_data = response.json()
-        #     return jsonify(glucose_data), 200
-        # else:
-        #     return jsonify({'error': 'Failed to fetch glucose data'}), response.status_code
     except Exception as e:
+        # Handle exceptions and return error messages
+        print(f"Exception occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
