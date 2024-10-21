@@ -89,34 +89,50 @@ export default function DexcomLogin() {
     }
   };
   
-  // Fetch glucose data using the stored access token
   const fetchGlucoseData = async () => {
     try {
-      const storedAuthState = await AsyncStorage.getItem('dexcomAuthState');
-      if (!storedAuthState) {
-        throw new Error('No stored authentication state. Please log in again.');
-      }
-      const authState = JSON.parse(storedAuthState);
+        // Step 1: Retrieve the auth state (including access token) from AsyncStorage
+        const storedAuthState = await AsyncStorage.getItem('dexcomAuthState');
+        if (!storedAuthState) {
+            throw new Error('No stored authentication state. Please log in again.');
+        }
+        
+        const authState = JSON.parse(storedAuthState);
+        const accessToken = authState.access_token;  // Extract access token
   
-      // Make a request to your Flask backend, which proxies the Dexcom API request
-      const response = await fetch('http://127.0.0.1:5000/fetch-glucose-data', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authState.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        // Step 2: Retrieve last sync time from AsyncStorage
+        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
+        
+        // Step 3: Make a request to your Flask backend with the access token and last sync time
+        const response = await fetch('http://127.0.0.1:5000/fetch-glucose-data', {
+            method: 'POST', // Using POST to send the body
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,  // Include the actual access token
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                lastSyncTime: lastSyncTime || null // Send lastSyncTime or null if it's not available
+            }),
+        });
   
-      if (!response.ok) {
-        throw new Error(`Failed to fetch glucose data with status: ${response.status}`);
-      }
+        if (!response.ok) {
+            throw new Error(`Failed to fetch glucose data with status: ${response.status}`);
+        }
   
-      const data = await response.json();
-      console.log('Glucose Data:', data);
+        // Step 4: Parse the glucose data from the response
+        const glucoseData = await response.json();
+        console.log('Glucose Data:', glucoseData);
+  
+        // Step 5: Update the last sync time in AsyncStorage
+        const currentDate = new Date().toISOString();
+        await AsyncStorage.setItem('lastSyncTime', currentDate);
+  
     } catch (error) {
-      console.error('Failed to fetch glucose data', error);
+        console.error('Failed to fetch glucose data:', error);
     }
   };
+  
+
   
   // Logout by deleting the stored access token
   const dexcomLogout = async () => {

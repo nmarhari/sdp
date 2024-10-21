@@ -3,6 +3,7 @@ import requests
 from flask_cors import CORS
 import os
 from functions import openai_api_call, dexcom_api_request
+from datetime import datetime, timedelta
 
 # Set your OpenAI API key as an environment variable for security
 # Configuration for Dexcom API (replace with your values)
@@ -102,43 +103,56 @@ def refresh_token():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/fetch-glucose-data', methods=['GET'])
-@app.route('/fetch-glucose-data', methods=['GET'])
+
+@app.route('/fetch-glucose-data', methods=['POST'])
 def fetch_glucose_data():
-    # Extract the Authorization header
-    auth_header = request.headers.get('Authorization')
-    
-    if not auth_header:
-        return jsonify({'error': 'Authorization header is missing'}), 400
-    
-    # Ensure the token is formatted correctly as 'Bearer <token>'
-    if not auth_header.startswith('Bearer '):
-        return jsonify({'error': 'Authorization header is malformed'}), 400
-    
-    access_token = auth_header.split(' ')[1]
+    # Extract the access token from the request headers
+    access_token = request.headers.get('Authorization').split(' ')[1]
 
+    # Extract lastSyncTime from the request body
+    data = request.get_json()
+    last_sync_time = data.get('lastSyncTime')
+
+    # Get current date and time (UTC)
+    current_date = datetime.utcnow()
+
+    # If lastSyncTime is provided, use it as the start date, otherwise default to 7 days ago
+    if last_sync_time:
+        start_date = datetime.strptime(last_sync_time, '%Y-%m-%dT%H:%M:%S')
+    else:
+        start_date = current_date - timedelta(days=7)
+
+    # The end date will always be the current time
+    end_date = current_date
+
+    # Format startDate and endDate to the format expected by the Dexcom API (YYYY-MM-DDTHH:mm:ss)
+    start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+    end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%S')
+
+    # Log the calculated startDate and endDate
+    print(f"Fetching glucose data from {start_date_str} to {end_date_str}")
+
+    # Request glucose data from the Dexcom API
     try:
-        # Define Dexcom API URL for glucose data
-        DEXCOM_API_URL = 'https://sandbox-api.dexcom.com/v2/users/self/egvs'
+        response = requests.get(
+            'https://sandbox-api.dexcom.com/v2/users/self/egvs',
+            headers={'Authorization': f'Bearer {access_token}'},
+            params={
+                'startDate': start_date_str,
+                'endDate': end_date_str
+            }
+        )
         
-        # Make the request to Dexcom API using the access token
-        response = requests.get(DEXCOM_API_URL, headers={
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        })
-        
-        # If Dexcom responds with 200 OK
         if response.status_code == 200:
-            return jsonify(response.json()), 200
+            glucose_data = response.json()
+            return jsonify(glucose_data), 200
         else:
-            # Log the response from Dexcom for further debugging
             print(f"Error from Dexcom API: {response.status_code}, {response.text}")
-            return jsonify({'error': 'Failed to fetch glucose data from Dexcom', 'status': response.status_code}), response.status_code
-
+            return jsonify({'error': 'Failed to fetch glucose data'}), response.status_code
     except Exception as e:
-        # Handle exceptions and return error messages
-        print(f"Exception occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
 
 
 if __name__ == '__main__':
