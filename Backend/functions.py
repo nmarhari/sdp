@@ -1,3 +1,8 @@
+import datetime
+from datetime import timedelta
+from dotenv import load_dotenv # pip install python-env
+import json
+
 def openai_api_call(image, prompt, openai_api_key):
     # Define the endpoint
     endpoint = 'https://api.openai.com/v1/images/generations'
@@ -21,3 +26,18 @@ def openai_api_call(image, prompt, openai_api_key):
 
     return response
 
+def dexcom_api_request(dexcom_token):
+    endpoint = "https://api.dexcom.com/v3/users/self/egvs"
+
+    endDate = datetime.datetime.now()
+    startDate = endDate -timedelta(days=7)
+
+    query = {
+        "startDate": startDate.strftime("%Y-%m-%dT%H:%M:%S"),
+        "endDate": endDate.strftime("%Y-%m-%dT%H:%M:%S")
+    }
+    headers = {"Authorization": f"Bearer {dexcom_token}"}
+    response = requests.get(endpoint, headers=headers, params=query)
+    data = response.status_code
+    print(data)
+    return data
