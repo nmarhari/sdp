@@ -15,7 +15,7 @@ export default function DexcomLogin() {
   const [error, setError] = useState(null);
 
   // Redirect URI (using localhost for now)
-  const redirectUri = 'http://localhost:8081';  // Replace with your localhost URL
+  const redirectUri = 'CarbCounter://*';  // Replace with your localhost URL
 
   // Create the authorization request
   const [request, response, promptAsync] = useAuthRequest(
@@ -29,33 +29,12 @@ export default function DexcomLogin() {
 
   // Capture the URL when the redirect happens
   useEffect(() => {
-    const handleUrl = (url) => {
-      const parsedUrl = new URL(url);
-      const code = parsedUrl.searchParams.get('code');
-      if (code) {
-        setAuthCode(code);
-        console.log('Authorization code captured:', code);
-        exchangeCodeForToken(code);
-      } else {
-        setError('Authorization code not found in URL');
-      }
-    };
-
-    const subscription = Linking.addEventListener('url', (event) => {
-      handleUrl(event.url);
-    });
-
-    // Check if we already have an incoming URL
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        handleUrl(url);
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+    if (response?.type === 'success'){
+      const { code } = response.params;
+      setAuthCode(code);
+      exchangeCodeForToken(code);
+    }
+  }, [response]);
 
   // Exchange code for token using your Flask backend
   const exchangeCodeForToken = async (code) => {
