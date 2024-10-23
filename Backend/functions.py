@@ -1,6 +1,5 @@
 import datetime
 from datetime import timedelta
-from dotenv import load_dotenv # pip install python-env
 import json
 
 def openai_api_call(image, prompt, openai_api_key):
