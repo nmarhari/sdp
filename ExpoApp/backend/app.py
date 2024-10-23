@@ -114,24 +114,25 @@ def fetch_glucose_data():
     last_sync_time = data.get('lastSyncTime')
 
     # Get current date and time (UTC)
+
     current_date = datetime.utcnow()
 
     # If lastSyncTime is provided, use it as the start date, otherwise default to 7 days ago
     if last_sync_time:
-        start_date = datetime.strptime(last_sync_time, '%Y-%m-%dT%H:%M:%S')
+        # Ignore fractional seconds and 'Z' by splitting and taking only the main part of the time
+        last_sync_time_cleaned = last_sync_time.split('.')[0].rstrip('Z')
+        
+        # Parse the cleaned last_sync_time
+        start_date = datetime.strptime(last_sync_time_cleaned, '%Y-%m-%dT%H:%M:%S')
     else:
         start_date = current_date - timedelta(days=7)
 
     # The end date will always be the current time
     end_date = current_date
 
-    # Format startDate and endDate to the format expected by the Dexcom API (YYYY-MM-DDTHH:mm:ss)
+    # Format start_date and end_date to the format expected by the Dexcom API (YYYY-MM-DDTHH:mm:ss)
     start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%S')
     end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%S')
-
-    # Log the calculated startDate and endDate
-    print(f"Fetching glucose data from {start_date_str} to {end_date_str}")
-
     # Request glucose data from the Dexcom API
     try:
         response = requests.get(
