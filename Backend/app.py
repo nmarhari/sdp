@@ -111,21 +111,13 @@ def fetch_glucose_data():
 
     # Extract lastSyncTime from the request body
     data = request.get_json()
-    last_sync_time = data.get('lastSyncTime')
 
     # Get current date and time (UTC)
 
     current_date = datetime.utcnow()
 
-    # If lastSyncTime is provided, use it as the start date, otherwise default to 7 days ago
-    if last_sync_time:
-        # Ignore fractional seconds and 'Z' by splitting and taking only the main part of the time
-        last_sync_time_cleaned = last_sync_time.split('.')[0].rstrip('Z')
-        
         # Parse the cleaned last_sync_time
-        start_date = datetime.strptime(last_sync_time_cleaned, '%Y-%m-%dT%H:%M:%S')
-    else:
-        start_date = current_date - timedelta(days=7)
+    start_date = current_date - timedelta(days=7)
 
     # The end date will always be the current time
     end_date = current_date

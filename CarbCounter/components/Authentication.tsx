@@ -70,47 +70,26 @@ export default function DexcomLogin() {
   
   const fetchGlucoseData = async () => {
     try {
-        // Step 1: Retrieve the auth state (including access token) from AsyncStorage
         const storedAuthState = await AsyncStorage.getItem('dexcomAuthState');
-        if (!storedAuthState) {
-            throw new Error('No stored authentication state. Please log in again.');
-        }
+        if (!storedAuthState) throw new Error('Please log in again.');
         
-        const authState = JSON.parse(storedAuthState);
-        const accessToken = authState.access_token;  // Extract access token
-  
-        // Step 2: Retrieve last sync time from AsyncStorage
-        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
-        
-        // Step 3: Make a request to your Flask backend with the access token and last sync time
+        const { access_token } = JSON.parse(storedAuthState);
         const response = await fetch('http://127.0.0.1:5000/fetch-glucose-data', {
-            method: 'POST', // Using POST to send the body
+            method: 'POST',
             headers: {
-                'Authorization': `Bearer ${accessToken}`,  // Include the actual access token
-                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                lastSyncTime: lastSyncTime || null // Send lastSyncTime or null if it's not available
-            }),
+            body: JSON.stringify({})
         });
-  
-        if (!response.ok) {
-            throw new Error(`Failed to fetch glucose data with status: ${response.status}`);
-        }
-  
-        // Step 4: Parse the glucose data from the response
-        const glucoseData = await response.json();
-        console.log('Glucose Data:', glucoseData);
-  
-        // Step 5: Update the last sync time in AsyncStorage
-        const currentDate = new Date().toISOString();
-        await AsyncStorage.setItem('lastSyncTime', currentDate);
-  
+
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        console.log('Glucose Data:', await response.json());
+        
     } catch (error) {
-        console.error('Failed to fetch glucose data:', error);
+        console.error('Fetch error:', error);
     }
-  };
-  
+};
 
   
   // Logout by deleting the stored access token
