@@ -71,6 +71,20 @@ export const insertCarbRatio = async (carbToInsulinRatio) => {
   }
 };
 
+export const updateCarbRatio = async (carbToInsulinRatio) => {
+  console.log("Inserting carb-to-insulin ratio:", carbToInsulinRatio);
+  try {
+    await db.runAsync(
+      `UPDATE User SET carb_to_insulin_ratio = ?;`,
+      carbToInsulinRatio
+    );
+    console.log("Carb-to-insulin ratio updated successfully");
+  } catch (error) {
+    console.log("Error updating carb-to-insulin ratio", error);
+    throw error;
+  }
+};
+
 // Insert DexCom login with runAsync
 export const insertDexComLogin = async (dexComLogin) => {
   try {

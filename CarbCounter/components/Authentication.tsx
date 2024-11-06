@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text } from 'react-native';  // Make sure to import Text
+import { Button, View, Text, Alert, Modal, Dimensions} from 'react-native';  // Make sure to import Text
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Replacing SecureStore with AsyncStorage
 import { useAuthRequest } from 'expo-auth-session';
 import { Linking } from 'react-native';
+import { updateCarbRatio } from "@/reuseableFunctions/dbInit";
+import styled from 'styled-components/native';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
 
 // Dexcom OAuth endpoints
 const discovery = {
@@ -11,8 +16,15 @@ const discovery = {
 };
 
 export default function DexcomLogin() {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [authCode, setAuthCode] = useState(null);
   const [error, setError] = useState(null);
+  const [glucoseRatio, setGlucoseRatio] = useState('');
+
+  const handleSetGlucoseRatio = () => {
+    setIsModalVisible(true);
+  };
+
 
   // Redirect URI (using localhost for now)
   const redirectUri = 'CarbCounter://*';  // Replace with your localhost URL
@@ -39,7 +51,7 @@ export default function DexcomLogin() {
   // Exchange code for token using your Flask backend
   const exchangeCodeForToken = async (code) => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/exchange-code', {  // Replace with your Flask server URL
+      const response = await fetch('/exchange-code', {  // Replace with your Flask server URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +86,7 @@ export default function DexcomLogin() {
         if (!storedAuthState) throw new Error('Please log in again.');
         
         const { access_token } = JSON.parse(storedAuthState);
-        const response = await fetch('http://127.0.0.1:5000/fetch-glucose-data', {
+        const response = await fetch('/fetch-glucose-data', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${access_token}`,
@@ -91,6 +103,23 @@ export default function DexcomLogin() {
     }
 };
 
+  const modifyGlucoseRatio = () => {
+    if (glucoseRatio) {
+      console.log(glucoseRatio);
+      updateCarbRatio(glucoseRatio)
+        .then(() => {
+          console.log("Carb-to-insulin ratio saved:", glucoseRatio);
+          setIsModalVisible(false);
+          Alert.alert("Success", "Carb-to-insulin ratio saved successfully!");
+        })
+        .catch(error => {
+          console.error("Error saving carb-to-insulin ratio:", error);
+          Alert.alert("Error", "Failed to save carb-to-insulin ratio.");
+        });
+    } else {
+      Alert.alert("Input Required", "Please enter a valid glucose level.");
+    }
+  };
   
   // Logout by deleting the stored access token
   const dexcomLogout = async () => {
@@ -113,6 +142,30 @@ export default function DexcomLogin() {
         }}
       />
       <Button title="Fetch Glucose Data" onPress={fetchGlucoseData} />
+      <Button title="Change Carb Ratio" secondary onPress={handleSetGlucoseRatio}>
+      </Button>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <ModalContainer>
+          <ModalView>
+            <ModalTitle>Enter Glucose Ratio</ModalTitle>
+            <Input
+              placeholder="Glucose Level"
+              keyboardType="numeric"
+              value={glucoseRatio}
+              onChangeText={setGlucoseRatio}
+            />
+            <SaveButton onPress={modifyGlucoseRatio}>
+              <SaveButtonText>Save</SaveButtonText>
+            </SaveButton>
+          </ModalView>
+        </ModalContainer>
+      </Modal>
+
       <Button title="Logout" onPress={dexcomLogout} />
 
       {/* Display authorization code if available */}
@@ -123,3 +176,93 @@ export default function DexcomLogin() {
     </View>
   );
 }
+
+// Styled Components
+const Container = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  padding: ${screenHeight * 0.05}px ${screenWidth * 0.05}px;
+`;
+
+const CameraContainer = styled.View`
+  flex: 2;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CameraPlaceholder = styled.View`
+  width: ${screenWidth * 0.4}px;
+  height: ${screenWidth * 0.4}px;
+  border-radius: ${screenWidth * 0.2}px;
+  background-color: #e0e0e0;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ButtonContainer = styled.View`
+  flex: 1;
+  width: 100%;
+  justify-content: space-around;
+`;
+
+
+const ButtonText = styled.Text`
+  font-size: ${screenWidth * 0.045}px;
+  color: #ffffff;
+  font-weight: bold;
+  margin-left: ${screenWidth * 0.02}px;
+`;
+
+const ModalContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const ModalView = styled.View`
+  width: 80%;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  align-items: center;
+`;
+
+const ModalTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+`;
+
+const Input = styled.TextInput`
+  height: 40px;
+  border-color: #ccc;
+  border-width: 1px;
+  border-radius: 5px;
+  padding-horizontal: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+`;
+
+const SaveButton = styled.TouchableOpacity`
+  padding: 10px;
+  background-color: #007aff;
+  border-radius: 5px;
+  width: 100%;
+  align-items: center;
+`;
+
+const SaveButtonText = styled.Text`
+  color: #ffffff;
+  font-weight: bold;
+`;
+
+const FullScreenCamera = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+`;
