@@ -4,9 +4,8 @@ import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Camera from '@/components/camera';
 import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose } from "@/reuseableFunctions/dbInit";
-import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions';
-import { useDatabase } from '../../reuseableFunctions/DatabaseContext';
-import { LineChart } from 'react-native-gifted-charts';
+import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions'; // Import Dexcom functions
+import { useDatabase,  } from '../../reuseableFunctions/DatabaseContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -15,13 +14,10 @@ const Home = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [hasGlucoseRatio, setHasGlucoseRatio] = useState(false);
-  const [targetGlucose, setTargetGlucose] = useState(null);
-  const [glucoseData, setGlucoseData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
-  const photoPickerRef = useRef(null);
+  const photoPickerRef = useRef<any>(null);
   const db = useDatabase();
-
   const handleLogin = () => {
     if (request) {
       promptAsync();
@@ -43,8 +39,8 @@ const Home = () => {
       insertCarbRatio(glucoseLevel)
         .then(() => {
           console.log("Carb-to-insulin ratio saved:", glucoseLevel);
-          setIsModalVisible(false);
-          setIsUserLoggedIn(true);
+          setIsModalVisible(false); // Close the modal after saving
+          setIsUserLoggedIn(true); // Update login status if needed
           Alert.alert("Success", "Carb-to-insulin ratio saved successfully!");
         })
         .catch(error => {
@@ -56,45 +52,12 @@ const Home = () => {
     }
   };
 
-  // Fetch target glucose and glucose data on page load
   useEffect(() => {
-    async function loadData() {
-      try {
-        const user = await retrieveUser();
-        setIsUserLoggedIn(user.dexcom_login != null);
-        setHasGlucoseRatio(user.carb_to_insulin_ratio != null);
-
-        const target = await retrieveTargetGlucose();
-        setTargetGlucose(target);
-
-        const data = await fetchGlucoseData();
-        if (data) {
-          const formattedData = data.map((item, index) => ({
-            value: item.glucoseLevel,
-            label: `T${index}`,  // Example label, customize as needed
-          }));
-          setGlucoseData(formattedData);
-        }
-      } catch (err) {
-        console.log("Failed to load data:", err);
-      }
-    }
-    loadData();
+    retrieveUser().then(d => {
+      setIsUserLoggedIn(d.dexcom_login != null);
+      setHasGlucoseRatio(d.carb_to_insulin_ratio != null);
+    });
   }, []);
-
-  // Calculate the range for green shading
-  const lowerLimit = targetGlucose ? targetGlucose - 30 : null;
-  const upperLimit = targetGlucose ? targetGlucose + 30 : null;
-
-  // Dynamic line color based on glucose levels
-  const getLineColor = (value) => {
-    if (value < lowerLimit || value > upperLimit) {
-      const deviation = Math.abs(value - targetGlucose) - 30;
-      const intensity = Math.min(deviation * 2, 255); // Scale intensity
-      return `rgb(255, ${255 - intensity}, ${255 - intensity})`;
-    }
-    return 'blue';
-  };
 
   return (
     <Container>
@@ -150,40 +113,9 @@ const Home = () => {
 
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
-
-      {isUserLoggedIn && hasGlucoseRatio && glucoseData.length > 0 && (
-        <View style={{ marginVertical: 20, padding: 10, backgroundColor: '#f8f9fa' }}>
-          <LineChart
-            data={glucoseData}
-            width={screenWidth * 0.9}
-            height={250}
-            spacing={30}
-            hideDataPoints
-            areaChart
-            showYAxisIndices
-            showXAxisIndices
-            thickness={3}
-            color={data => getLineColor(data.value)}
-            yAxisTextStyle={{ color: 'gray' }}
-            xAxisTextStyle={{ color: 'gray' }}
-            noOfSections={4}
-            maxValue={upperLimit + 50}  // Extra padding for upper limit
-            minValue={lowerLimit - 50}  // Extra padding for lower limit
-            adjustToHeight
-            rulesType="solid"
-            rulesColor="#ddd"
-            backgroundColor="white"
-            yAxisOffset={10}
-            hideAxesAndRules
-            colorFill={['#a3e4a4']}  // Green fill within limits
-          />
-        </View>
-      )}
     </Container>
   );
 };
-
-
 
 // Styled Components
 const Container = styled.View`
