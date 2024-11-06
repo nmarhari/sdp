@@ -13,7 +13,7 @@ const Home = () => {
   const { request, promptAsync, authCode, error } = useDexcomAuth();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  const [isUserConnected, setIsUserConnected] = useState(false);
+  const [hasGlucoseRatio, setHasGlucoseRatio] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [glucoseLevel, setGlucoseLevel] = useState('');
   const photoPickerRef = useRef<any>(null);
@@ -55,8 +55,8 @@ const Home = () => {
 
   useEffect(() => {
     retrieveUser().then(d => {
-      setIsUserLoggedIn(d.carb_to_insulin_ratio != null);
-      setIsUserConnected(d.dexcom_login != null);
+      setIsUserLoggedIn(d.dexcom_login != null);
+      setHasGlucoseRatio(d.carb_to_insulin_ratio != null);
     });
   }, []);
 
@@ -98,7 +98,7 @@ const Home = () => {
           </Button>
         )}
         
-        {!isUserConnected && (
+        {!hasGlucoseRatio && (
           <Button secondary onPress={handleSetTargetLevels}>
             <Icon name="sliders" size={20} color="#ffffff" />
             <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
