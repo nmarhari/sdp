@@ -1,19 +1,23 @@
-import React, {useState,useRef} from "react";
-import { StyleSheet, View, Text, Image, Dimensions,Alert } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { Alert, Dimensions, Modal, Text, View } from "react-native";
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Svg, { Ellipse } from "react-native-svg";
 import Camera from '@/components/camera';
-import PhotoPickerSection from '@/components/PhotoPickerSection';
-import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions'; // Import Dexcom functions
-// Get the screen dimensions
+import { retrieveUser, insertCarbRatio, insertDexComLogin } from "@/reuseableFunctions/dbInit";
+import { useDexcomAuth } from '../../reuseableFunctions/loginFunctions'; // Import Dexcom functions
+import { useDatabase } from '../../reuseableFunctions/DatabaseContext';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const Home = () => {
   const { request, promptAsync, authCode, error } = useDexcomAuth();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [isUserConnected, setIsUserConnected] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [glucoseLevel, setGlucoseLevel] = useState('');
   const photoPickerRef = useRef<any>(null);
-  // Connect "LOGIN TO DEXCOM" button to Dexcom login
+  const db = useDatabase();
   const handleLogin = () => {
     if (request) {
       promptAsync();
@@ -22,47 +26,99 @@ const Home = () => {
     }
   };
 
-  // Placeholder function for "SET TARGET GLUCOSE LEVELS" button
-  const handleSetTargetLevels = () => {
-    Alert.alert("Set Target Glucose Levels clicked");
+  const handleCamera = () => {
+    setIsCameraOpen(true);
   };
+
+  const handleSetTargetLevels = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleSaveGlucoseLevel = () => {
+    if (glucoseLevel) {
+      console.log(glucoseLevel);
+      insertCarbRatio(glucoseLevel)
+        .then(() => {
+          console.log("Carb-to-insulin ratio saved:", glucoseLevel);
+          setIsModalVisible(false); // Close the modal after saving
+          setIsUserLoggedIn(true); // Update login status if needed
+          Alert.alert("Success", "Carb-to-insulin ratio saved successfully!");
+        })
+        .catch(error => {
+          console.error("Error saving carb-to-insulin ratio:", error);
+          Alert.alert("Error", "Failed to save carb-to-insulin ratio.");
+        });
+    } else {
+      Alert.alert("Input Required", "Please enter a valid glucose level.");
+    }
+  };
+
+  useEffect(() => {
+    retrieveUser().then(d => {
+      setIsUserLoggedIn(d.carb_to_insulin_ratio != null);
+      setIsUserConnected(d.dexcom_login != null);
+    });
+  }, []);
 
   return (
     <Container>
       <CameraContainer>
         <CameraPlaceholder>
-          <Icon name="camera" size={screenWidth * 0.2} color="#6b6b6b"/>
+          <Icon name="camera" size={screenWidth * 0.2} color="#6b6b6b" onPress={handleCamera}/>
         </CameraPlaceholder>
       </CameraContainer>
-      
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <ModalContainer>
+          <ModalView>
+            <ModalTitle>Enter Target Glucose Level</ModalTitle>
+            <Input
+              placeholder="Glucose Level"
+              keyboardType="numeric"
+              value={glucoseLevel}
+              onChangeText={setGlucoseLevel}
+            />
+            <SaveButton onPress={handleSaveGlucoseLevel}>
+              <SaveButtonText>Save</SaveButtonText>
+            </SaveButton>
+          </ModalView>
+        </ModalContainer>
+      </Modal>
+
       <ButtonContainer>
-        <Button onPress={handleLogin}>
-          <Icon name="user" size={20} color="#ffffff" />
-          <ButtonText>LOGIN TO DEXCOM</ButtonText>
-        </Button>
+        {!isUserLoggedIn && (
+          <Button onPress={handleLogin}>
+            <Icon name="user" size={20} color="#ffffff" />
+            <ButtonText>LOGIN TO DEXCOM</ButtonText>
+          </Button>
+        )}
         
-        <Button secondary onPress={handleSetTargetLevels}>
-          <Icon name="sliders" size={20} color="#ffffff" />
-          <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
-        </Button>
+        {!isUserConnected && (
+          <Button secondary onPress={handleSetTargetLevels}>
+            <Icon name="sliders" size={20} color="#ffffff" />
+            <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
+          </Button>
+        )}
       </ButtonContainer>
 
       {isCameraOpen && (
-        <View style={StyleSheet.absoluteFillObject}>
+        <FullScreenCamera>
           <Camera onClose={() => setIsCameraOpen(false)} />
-        </View>
+        </FullScreenCamera>
       )}
-      {/* Display authorization code if available */}
-      {authCode && <Text>Authorization Code: {authCode}</Text>}
 
-      {/* Display errors if any */}
+      {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
     </Container>
   );
 };
 
 // Styled Components
-
 const Container = styled.View`
   flex: 1;
   justify-content: center;
@@ -108,6 +164,58 @@ const ButtonText = styled.Text`
   color: #ffffff;
   font-weight: bold;
   margin-left: ${screenWidth * 0.02}px;
+`;
+
+const ModalContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const ModalView = styled.View`
+  width: 80%;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  align-items: center;
+`;
+
+const ModalTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+`;
+
+const Input = styled.TextInput`
+  height: 40px;
+  border-color: #ccc;
+  border-width: 1px;
+  border-radius: 5px;
+  padding-horizontal: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+`;
+
+const SaveButton = styled.TouchableOpacity`
+  padding: 10px;
+  background-color: #007aff;
+  border-radius: 5px;
+  width: 100%;
+  align-items: center;
+`;
+
+const SaveButtonText = styled.Text`
+  color: #ffffff;
+  font-weight: bold;
+`;
+
+const FullScreenCamera = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 `;
 
 export default Home;
