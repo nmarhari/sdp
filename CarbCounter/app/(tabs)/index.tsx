@@ -31,7 +31,7 @@ const Home = () => {
     <Container>
       <CameraContainer>
         <CameraPlaceholder>
-          <Icon name="camera" size={screenWidth * 0.2} color="#6b6b6b" />
+          <Icon name="camera" size={screenWidth * 0.2} color="#6b6b6b"/>
         </CameraPlaceholder>
       </CameraContainer>
       
@@ -46,7 +46,7 @@ const Home = () => {
           <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
         </Button>
       </ButtonContainer>
-      
+
       {isCameraOpen && (
         <View style={StyleSheet.absoluteFillObject}>
           <Camera onClose={() => setIsCameraOpen(false)} />
