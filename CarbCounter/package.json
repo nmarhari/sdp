@@ -42,6 +42,10 @@
     "react-native-svg": "^15.7.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.10",
+    "expo-file-system": "~17.0.1",
+    "expo-camera": "~15.0.16",
+    "expo-image-picker": "~15.0.7",
+    "expo-media-library": "~16.0.5",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {

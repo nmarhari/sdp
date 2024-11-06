@@ -1,14 +1,18 @@
-import React from 'react';
-import { Alert, Dimensions, Text } from 'react-native';
+import React, {useState,useRef} from "react";
+import { StyleSheet, View, Text, Image, Dimensions,Alert } from "react-native";
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Svg, { Ellipse } from "react-native-svg";
+import Camera from '@/components/camera';
+import PhotoPickerSection from '@/components/PhotoPickerSection';
 import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions'; // Import Dexcom functions
-// Get screen dimensions
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+// Get the screen dimensions
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const Home = () => {
   const { request, promptAsync, authCode, error } = useDexcomAuth();
-
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const photoPickerRef = useRef<any>(null);
   // Connect "LOGIN TO DEXCOM" button to Dexcom login
   const handleLogin = () => {
     if (request) {
@@ -42,7 +46,12 @@ const Home = () => {
           <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
         </Button>
       </ButtonContainer>
-
+      
+      {isCameraOpen && (
+        <View style={StyleSheet.absoluteFillObject}>
+          <Camera onClose={() => setIsCameraOpen(false)} />
+        </View>
+      )}
       {/* Display authorization code if available */}
       {authCode && <Text>Authorization Code: {authCode}</Text>}
 
