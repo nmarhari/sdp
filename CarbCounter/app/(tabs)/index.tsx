@@ -58,7 +58,9 @@ const Home = () => {
       Alert.alert("Input Required", "Please enter a valid glucose level.");
     }
   };
-
+const handleSetGlucoseTarget = () => { 
+  setIsTargetModalVisible(true);
+}
 
 const handleSaveGlucoseTarget = () => {
     if (glucoseTarget) {
@@ -181,7 +183,7 @@ const handleSaveGlucoseTarget = () => {
         )}
 
         {!hasGlucoseTarget && (
-          <Button secondary onPress={handleSaveGlucoseTarget}>
+          <Button secondary onPress={handleSetGlucoseTarget}>
             <Icon name="sliders" size={20} color="#ffffff" />
             <ButtonText>SET GLUCOSE TARGET LEVEL</ButtonText>
           </Button>

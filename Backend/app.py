@@ -48,7 +48,7 @@ def exchange_code():
     data = request.get_json()
     code = data.get('code')
     redirect_uri = data.get('redirectUri')
-
+    print(code)
     # Request the access token from Dexcom
     try:
         token_response = requests.post(
