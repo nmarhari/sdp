@@ -18,14 +18,14 @@ const executeSqlAsync = async (sql, params = []) => {
 // Create tables using execAsync
 const createTables = async () => {
   try {
-    // await db.execAsync(`
-    //   DROP TABLE IF EXISTS User;
-    //   DROP TABLE IF EXISTS Meal;
-    // `);
+    await db.execAsync(`
+      DROP TABLE IF EXISTS User;
+      DROP TABLE IF EXISTS Meal;
+    `);
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS User (
-        carb_to_insulin_ratio INTEGER,
+        carb_to_insulin_ratio REAL,
         glucose_target INTEGER,
         dexcom_login TEXT
       );

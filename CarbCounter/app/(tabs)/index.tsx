@@ -15,7 +15,7 @@ const Home = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [hasGlucoseTarget, setHasGlucoseTarget] = useState(false);
-  const [hasGlucoseRatio, setHasGlucoseRatio] = useState(false);
+  const [hasCarbRatio, setHasCarbRatio] = useState(false);
   const [targetGlucose, setTargetGlucose] = useState(null);
   const [glucoseData, setGlucoseData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -47,7 +47,7 @@ const Home = () => {
         .then(() => {
           console.log("Carb-to-insulin ratio saved:", carbRatio);
           setIsModalVisible(false);
-          setIsUserLoggedIn(true);
+          setHasCarbRatio(true);
           Alert.alert("Success", "Carb-to-insulin ratio saved successfully!");
         })
         .catch(error => {
@@ -65,8 +65,8 @@ const handleSaveGlucoseTarget = () => {
       insertGlucoseTarget(glucoseTarget)
         .then(() => {
           console.log("Glucose Target saved:", glucoseTarget);
-          setIsModalVisible(false);
-          setIsUserLoggedIn(true);
+          setIsTargetModalVisible(false);
+          setHasGlucoseTarget(true);
           Alert.alert("Success", "Glucose Target saved successfully!");
         })
         .catch(error => {
@@ -83,8 +83,8 @@ const handleSaveGlucoseTarget = () => {
       try {
         const user = await retrieveUser();
         setIsUserLoggedIn(user.dexcom_login != null);
-        setHasGlucoseRatio(user.carb_to_insulin_ratio != null);
-
+        setHasCarbRatio(user.carb_to_insulin_ratio != null);
+        setHasGlucoseTarget(user.glucose_target != null);
         const target = await retrieveTargetGlucose();
         setTargetGlucose(target);
 
@@ -172,6 +172,7 @@ const handleSaveGlucoseTarget = () => {
 
 
       <ButtonContainer>
+
         {!isUserLoggedIn && (
           <Button onPress={handleLogin}>
             <Icon name="user" size={20} color="#ffffff" />
@@ -186,12 +187,13 @@ const handleSaveGlucoseTarget = () => {
           </Button>
         )}
 
-        {!hasGlucoseRatio && (
+        {!hasCarbRatio && (
           <Button secondary onPress={handleSetCarbRatio}>
             <Icon name="sliders" size={20} color="#ffffff" />
             <ButtonText>SET GLUCOSE RATIO LEVELS</ButtonText>
           </Button>
         )}
+
       </ButtonContainer>
 
       {isCameraOpen && (
@@ -203,7 +205,7 @@ const handleSaveGlucoseTarget = () => {
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-      {!isUserLoggedIn && !hasGlucoseRatio && glucoseData.length > 0 && (
+      {!isUserLoggedIn && !hasCarbRatio && glucoseData.length > 0 && (
         <View style={{ marginVertical: 20, padding: 10, backgroundColor: '#f8f9fa' }}>
           <LineChart
             data={glucoseData}
