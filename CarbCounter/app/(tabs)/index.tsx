@@ -3,7 +3,7 @@ import { Alert, Dimensions, Modal, Text, View } from "react-native";
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Camera from '@/components/camera';
-import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose } from "@/reuseableFunctions/dbInit";
+import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose, insertGlucoseTarget } from "@/reuseableFunctions/dbInit";
 import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions';
 import { useDatabase } from '../../reuseableFunctions/DatabaseContext';
 import { LineChart } from 'react-native-gifted-charts';
@@ -14,11 +14,14 @@ const Home = () => {
   const { request, promptAsync, authCode, error } = useDexcomAuth();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [hasGlucoseTarget, setHasGlucoseTarget] = useState(false);
   const [hasGlucoseRatio, setHasGlucoseRatio] = useState(false);
   const [targetGlucose, setTargetGlucose] = useState(null);
   const [glucoseData, setGlucoseData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [glucoseLevel, setGlucoseLevel] = useState('');
+  const [isTargetModalVisible, setIsTargetModalVisible] = useState(false);
+  const [glucoseTarget, setGlucoseTarget] = useState('');
+  const [carbRatio, setGlucoseLevel] = useState('');
   const photoPickerRef = useRef(null);
   const db = useDatabase();
 
@@ -34,15 +37,15 @@ const Home = () => {
     setIsCameraOpen(true);
   };
 
-  const handleSetTargetLevels = () => {
+  const handleSetCarbRatio = () => {
     setIsModalVisible(true);
   };
 
-  const handleSaveGlucoseLevel = () => {
-    if (glucoseLevel) {
-      insertCarbRatio(glucoseLevel)
+  const handleSaveCarbRatio = () => {
+    if (carbRatio) {
+      insertCarbRatio(carbRatio)
         .then(() => {
-          console.log("Carb-to-insulin ratio saved:", glucoseLevel);
+          console.log("Carb-to-insulin ratio saved:", carbRatio);
           setIsModalVisible(false);
           setIsUserLoggedIn(true);
           Alert.alert("Success", "Carb-to-insulin ratio saved successfully!");
@@ -56,6 +59,24 @@ const Home = () => {
     }
   };
 
+
+const handleSaveGlucoseTarget = () => {
+    if (glucoseTarget) {
+      insertGlucoseTarget(glucoseTarget)
+        .then(() => {
+          console.log("Glucose Target saved:", glucoseTarget);
+          setIsModalVisible(false);
+          setIsUserLoggedIn(true);
+          Alert.alert("Success", "Glucose Target saved successfully!");
+        })
+        .catch(error => {
+          console.error("Error saving Glucose Target:", error);
+          Alert.alert("Error", "Failed to save Glucose Target.");
+        });
+    } else {
+      Alert.alert("Input Required", "Please enter a valid glucose target.");
+    }
+  };  
   // Fetch target glucose and glucose data on page load
   useEffect(() => {
     async function loadData() {
@@ -112,19 +133,43 @@ const Home = () => {
       >
         <ModalContainer>
           <ModalView>
-            <ModalTitle>Enter Target Glucose Level</ModalTitle>
+            <ModalTitle>Enter Glucose Ratio</ModalTitle>
             <Input
-              placeholder="Glucose Level"
+              placeholder="Glucose Ratio"
               keyboardType="numeric"
-              value={glucoseLevel}
+              value={carbRatio}
               onChangeText={setGlucoseLevel}
             />
-            <SaveButton onPress={handleSaveGlucoseLevel}>
+            <SaveButton onPress={handleSaveCarbRatio}>
               <SaveButtonText>Save</SaveButtonText>
             </SaveButton>
           </ModalView>
         </ModalContainer>
       </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isTargetModalVisible}
+        onRequestClose={() => setIsTargetModalVisible(false)}
+      >
+        <ModalContainer>
+          <ModalView>
+            <ModalTitle>Enter Target Glucose Level</ModalTitle>
+            <Input
+              placeholder="Glucose Target"
+              keyboardType="numeric"
+              value={glucoseTarget}
+              onChangeText={setGlucoseTarget}
+            />
+            <SaveButton onPress={handleSaveGlucoseTarget}>
+              <SaveButtonText>Save</SaveButtonText>
+            </SaveButton>
+          </ModalView>
+        </ModalContainer>
+      </Modal>
+
+
 
       <ButtonContainer>
         {!isUserLoggedIn && (
@@ -133,11 +178,18 @@ const Home = () => {
             <ButtonText>LOGIN TO DEXCOM</ButtonText>
           </Button>
         )}
-        
-        {!hasGlucoseRatio && (
-          <Button secondary onPress={handleSetTargetLevels}>
+
+        {!hasGlucoseTarget && (
+          <Button secondary onPress={handleSaveGlucoseTarget}>
             <Icon name="sliders" size={20} color="#ffffff" />
-            <ButtonText>SET TARGET GLUCOSE LEVELS</ButtonText>
+            <ButtonText>SET GLUCOSE TARGET LEVEL</ButtonText>
+          </Button>
+        )}
+
+        {!hasGlucoseRatio && (
+          <Button secondary onPress={handleSetCarbRatio}>
+            <Icon name="sliders" size={20} color="#ffffff" />
+            <ButtonText>SET GLUCOSE RATIO LEVELS</ButtonText>
           </Button>
         )}
       </ButtonContainer>
@@ -151,7 +203,7 @@ const Home = () => {
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-      {isUserLoggedIn && hasGlucoseRatio && glucoseData.length > 0 && (
+      {!isUserLoggedIn && !hasGlucoseRatio && glucoseData.length > 0 && (
         <View style={{ marginVertical: 20, padding: 10, backgroundColor: '#f8f9fa' }}>
           <LineChart
             data={glucoseData}

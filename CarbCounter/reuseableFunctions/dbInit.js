@@ -26,6 +26,7 @@ const createTables = async () => {
       PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS User (
         carb_to_insulin_ratio INTEGER,
+        glucose_target INTEGER,
         dexcom_login TEXT
       );
       CREATE TABLE IF NOT EXISTS Meal (
@@ -63,6 +64,21 @@ export const insertCarbRatio = async (carbToInsulinRatio) => {
     await db.runAsync(
       `INSERT INTO User (carb_to_insulin_ratio) VALUES (?);`,
       carbToInsulinRatio
+    );
+    console.log("Carb-to-insulin ratio inserted successfully");
+  } catch (error) {
+    console.log("Error inserting carb-to-insulin ratio", error);
+    throw error;
+  }
+};
+
+
+export const insertGlucoseTarget = async (glucoseTarget) => {
+  console.log("Inserting carb-to-insulin ratio:", glucoseTarget);
+  try {
+    await db.runAsync(
+      `INSERT INTO User (glucose_target) VALUES (?);`,
+      glucoseTarget
     );
     console.log("Carb-to-insulin ratio inserted successfully");
   } catch (error) {
