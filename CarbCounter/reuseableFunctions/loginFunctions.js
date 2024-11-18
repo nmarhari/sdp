@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthRequest } from 'expo-auth-session';
 import { useEffect, useState } from 'react';
-import { initDB, insertUser } from './dbInit.js'; // Import the database functions
+import { initDB, insertDexComLogin, insertUser } from './dbInit.js'; // Import the database functions
 import { Alert } from 'react-native';
-
 // Dexcom OAuth endpoints
 const discovery = {
   authorizationEndpoint: 'https://sandbox-api.dexcom.com/v2/oauth2/login',
@@ -76,7 +75,7 @@ export const exchangeCodeForToken = async (code) => {
     console.log('Token exchange successful:', tokenResponse);
 
     // Insert the token into the User table
-    await insertUser(db, 1.0, tokenResponse.access_token);  // Replace `1.0` with actual carb-to-insulin ratio if available
+    await insertDexComLogin(tokenResponse.access_token);  // Replace `1.0` with actual carb-to-insulin ratio if available
 
     return tokenResponse;
   } catch (error) {

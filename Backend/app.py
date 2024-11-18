@@ -4,7 +4,9 @@ from flask_cors import CORS
 import os
 from functions import openai_api_call, dexcom_api_request
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
+load_dotenv()
 # Set your OpenAI API key as an environment variable for security
 # Configuration for Dexcom API (replace with your values)
 # DEXCOM_CLIENT_ID = 'Exc6hrFQoZtwuSwD5i3OWHt1LuGLuQ47'
@@ -48,7 +50,7 @@ def exchange_code():
     data = request.get_json()
     code = data.get('code')
     redirect_uri = data.get('redirectUri')
-    print(code)
+    print(code, redirect_uri, DEXCOM_CLIENT_ID, DEXCOM_CLIENT_SECRET)
     # Request the access token from Dexcom
     try:
         token_response = requests.post(
@@ -62,7 +64,6 @@ def exchange_code():
             },
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        
         # Check if the request was successful
         if token_response.status_code == 200:
             # Parse the JSON response
