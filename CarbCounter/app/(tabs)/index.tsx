@@ -28,6 +28,7 @@ const Home = () => {
   const handleLogin = () => {
     if (request) {
       promptAsync();
+      loadData();
     } else {
       Alert.alert("Login request is not ready");
     }
@@ -81,30 +82,41 @@ const handleSaveGlucoseTarget = () => {
   };  
   // Fetch target glucose and glucose data on page load
   useEffect(() => {
-    async function loadData() {
-      try {
-        const user = await retrieveUser();
-        setIsUserLoggedIn(user.dexcom_login != null);
-        setHasCarbRatio(user.carb_to_insulin_ratio != null);
-        setHasGlucoseTarget(user.glucose_target != null);
-        const target = await retrieveTargetGlucose();
-        setTargetGlucose(target);
-
-        const data = await fetchGlucoseData();
-        if (data) {
-          const formattedData = data.map((item, index) => ({
-            value: item.glucoseLevel,
-            label: `T${index}`,  // Example label, customize as needed
-          }));
-          setGlucoseData(formattedData);
-        }
-      } catch (err) {
-        console.log("Failed to load data:", err);
-      }
-    }
     loadData();
   }, []);
 
+  async function loadData() {
+    try {
+      const user = await retrieveUser();
+      setIsUserLoggedIn(user.dexcom_login != null);
+      setHasCarbRatio(user.carb_to_insulin_ratio != null);
+      setHasGlucoseTarget(user.glucose_target != null);
+      const target = await retrieveTargetGlucose();
+      setTargetGlucose(target);
+
+      const data = await fetchGlucoseData();
+      
+        if (data && data.egvs && Array.isArray(data.egvs)) {
+          try {
+            const formattedData = data.egvs.map((item, index) => ({
+              value: item.value, // Extracts the glucose level value
+              label: `T${index}: ${item.displayTime}`, // Formats the display time as a label
+            }));
+            setGlucoseData(formattedData); // Updates the state with the formatted data
+          } catch (error) {
+            console.error("Error processing evgs data:", error);
+          }
+        } else {
+          console.error("Invalid data format: egvs field is missing or not an array", data);
+        }
+      
+
+
+
+    } catch (err) {
+      console.log("Failed to load data:", err);
+    }
+  }
   // Calculate the range for green shading
   const lowerLimit = targetGlucose ? targetGlucose - 30 : null;
   const upperLimit = targetGlucose ? targetGlucose + 30 : null;
