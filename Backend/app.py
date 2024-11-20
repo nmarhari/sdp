@@ -5,7 +5,8 @@ import os
 from functions import openai_api_call, dexcom_api_request
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-
+import requests
+import base64
 load_dotenv()
 # Set your OpenAI API key as an environment variable for security
 # Configuration for Dexcom API (replace with your values)
@@ -26,18 +27,29 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}})
 def test():
     return jsonify({"message": "Hello, World!"})
 
+
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
+    # Check if an image file is present in the request
+    print("Hey I got the image")
     if 'image' not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
-    
+    # Get the uploaded image file from the request
     image = request.files['image']
-    prompt = "How many grams of carbs are in the food in this image respond in only JSON format with an integer corresponding to the amount of carbs"
-    
+    # Read the image as binary data
+    image_data = image.read()
+    # Encode the image as Base64 (if required by OpenAI or downstream services)
+    image_base64 = base64.b64encode(image_data).decode('utf-8')
+    # Define the prompt
+    prompt = (
+        "How many grams of carbs are in the food in this image? "
+        "Respond in only JSON format with an integer corresponding to the amount of carbs."
+    )
     # Call OpenAI API
     try:
-        response = openai_api_call(image, prompt, openai_api_key)
-        return jsonify(response.json())
+        response = openai_api_call(image_base64, prompt, openai_api_key)
+        return jsonify(response)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

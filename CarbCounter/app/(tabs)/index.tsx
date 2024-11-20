@@ -27,8 +27,8 @@ const Home = () => {
 
   const handleLogin = () => {
     if (request) {
-      promptAsync();
-      loadData();
+      promptAsync().then(loadData);
+      setIsUserLoggedIn(true);
     } else {
       Alert.alert("Login request is not ready");
     }
@@ -83,7 +83,7 @@ const handleSaveGlucoseTarget = () => {
   // Fetch target glucose and glucose data on page load
   useEffect(() => {
     loadData();
-  }, []);
+  }, [isUserLoggedIn]);
 
   async function loadData() {
     try {
@@ -96,35 +96,33 @@ const handleSaveGlucoseTarget = () => {
 
       const data = await fetchGlucoseData();
       
-        if (data && data.egvs && Array.isArray(data.egvs)) {
-          try {
-            const formattedData = data.egvs.map((item, index) => ({
-              value: item.value, // Extracts the glucose level value
-              label: `T${index}: ${item.displayTime}`, // Formats the display time as a label
-            }));
-            setGlucoseData(formattedData); // Updates the state with the formatted data
-          } catch (error) {
-            console.error("Error processing evgs data:", error);
-          }
-        } else {
-          console.error("Invalid data format: egvs field is missing or not an array", data);
-        }
+      if (data && data.egvs && Array.isArray(data.egvs)) {
+        const validEgvs = data.egvs.filter(item => item.value !== null && !isNaN(item.value));
+        
+        const formattedData = validEgvs.map((item, index) => ({
+          value: item.value, // Use only valid values
+          label: `T${index}: ${item.displayTime || "Unknown Time"}`, // Provide default label
+        }));
       
-
-
+        setGlucoseData(formattedData);
+      } else {
+        console.error("Invalid egvs data:");
+      }
 
     } catch (err) {
       console.log("Failed to load data:", err);
     }
   }
+  
   // Calculate the range for green shading
-  const lowerLimit = targetGlucose ? targetGlucose - 30 : null;
-  const upperLimit = targetGlucose ? targetGlucose + 30 : null;
+  const lowerLimit = targetGlucose ? targetGlucose - 30 : 90;
+  const upperLimit = targetGlucose ? targetGlucose + 30 : 150;
 
   // Dynamic line color based on glucose levels
   const getLineColor = (value) => {
     if (value < lowerLimit || value > upperLimit) {
       const deviation = Math.abs(value - targetGlucose) - 30;
+      if (Number.isNaN(deviation)) console.log("Deviation is NaN");
       const intensity = Math.min(deviation * 2, 255); // Scale intensity
       return `rgb(255, ${255 - intensity}, ${255 - intensity})`;
     }
@@ -219,7 +217,7 @@ const handleSaveGlucoseTarget = () => {
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-      {!isUserLoggedIn && !hasCarbRatio && glucoseData.length > 0 && (
+      {/* {!isUserLoggedIn && !hasCarbRatio && glucoseData.length > 0 && (
         <View style={{ marginVertical: 20, padding: 10, backgroundColor: '#f8f9fa' }}>
           <LineChart
             data={glucoseData}
@@ -246,7 +244,7 @@ const handleSaveGlucoseTarget = () => {
             colorFill={['#a3e4a4']}  // Green fill within limits
           />
         </View>
-      )}
+      )} */}
     </Container>
   );
 };

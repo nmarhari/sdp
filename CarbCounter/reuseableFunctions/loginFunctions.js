@@ -102,7 +102,7 @@ export const fetchGlucoseData = async () => {
 
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     const glucoseData = await response.json();
-    console.log('Glucose Data:', glucoseData);
+    console.log('Glucose Data:');
     return glucoseData;
   } catch (error) {
     console.error('Fetch error:', error);
