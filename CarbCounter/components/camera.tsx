@@ -66,29 +66,67 @@ export default function Camera({ onClose }: { onClose: () => void }) {
 
   
   const uploadPhoto = async (photoUri: string) => {
-    const formData = new FormData();
-  
-    formData.append('image', {
-      uri: photoUri,
-      name: 'photo.jpg', // You can change the filename if needed
-      type: 'image/jpeg', // Ensure this matches file type
-    } as any); // Use `as any` to bypass TypeScript's strict type checking
-  
-    try {
-      const response = await fetch('http://192.168.1.151:5000/upload-image', {//!!! use command prompt type "ipconfig"(Windows) to check your IP address 
-        method: 'POST',                                                       //For Example: http://<replace with Your IP address>:5000/upload-image
-        body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-      const result = await response.json();
-      console.log('Response from server:', result);
-    } catch (error) {
-      console.error('Error uploading photo:', error);
+    // const formData = new FormData();
+
+    const response = await fetch(photoUri);
+    const blob = await response.blob();
+
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onloadend = async () => {
+      const base64Image = reader.result;
+      console.log(base64Image)
+      const payload = {
+        image: base64Image,
+      };
+      try{
+        const response = await fetch('http://127.0.0.1:5000/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Server error:", errorText);
+          throw new Error(`Upload failed: ${response.status}`);
+        };
+        const result = await response.json();
+        console.log('Response from server:', result);
+      } catch (error) {
+          console.error('Error uploading photo:', error.message || error);
+      }
     }
-  };
+    reader.onerror = (error) => {
+      console.error("Error reading file as Base64:", error);
+    };
+  }
+    
+  
+  //   formData.append('image', {
+  //     uri: photoUri,
+  //     name: 'photo.jpg', // You can change the filename if needed
+  //     type: 'image/jpeg', // Ensure this matches file type
+  //   } as any); // Use `as any` to bypass TypeScript's strict type checking
+  
+  //   console.log(formData)
+
+  //   try {
+  //     const response = await fetch('http://localhost:5000/upload-image', {//!!! use command prompt type "ipconfig"(Windows) to check your IP address 
+  //       method: 'POST',                                                       //For Example: http://<replace with Your IP address>:5000/upload-image
+  //       body: formData,
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     });
+  
+  //     const result = await response.json();
+  //     console.log('Response from server:', result);
+  //   } catch (error) {
+  //     console.error('Error uploading photo:', error);
+  //   }
+  // };
   
 
   if (photo) {
@@ -178,4 +216,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
-});
+})
