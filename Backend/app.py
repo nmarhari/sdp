@@ -31,21 +31,25 @@ def test():
 
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
-    # Check if an image file is present in the request
-    print("Hey I got the image")
-    if 'image' not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
-    # Get the uploaded image file from the request
-    image = request.files['image']
-    # Read the image as binary data
-    image_data = image.read()
-    # Encode the image as Base64 (if required by OpenAI or downstream services)
-    image_base64 = base64.b64encode(image_data).decode('utf-8')
+    # Check if 'image' is in the JSON payload
+    if 'image' not in request.json:
+        return jsonify({"error": "No image data provided"}), 400
+
+    # Get the Base64 image string from the JSON payload
+    image_base64 = request.json['image']
+
+    # Decode the Base64 image to binary (optional: save or process it)
+    try:
+        image_data = base64.b64decode(image_base64.split(",")[1])  # Skip the data URL prefix
+    except Exception as e:
+        return jsonify({"error": f"Invalid image data: {str(e)}"}), 400
+
     # Define the prompt
     prompt = (
         "How many grams of carbs are in the food in this image? "
         "Respond in only JSON format with an integer corresponding to the amount of carbs."
     )
+
     # Call OpenAI API
     try:
         response = openai_api_call(image_base64, prompt, openai_api_key)
