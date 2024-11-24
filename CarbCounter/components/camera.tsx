@@ -75,7 +75,7 @@ export default function Camera({ onClose }: { onClose: () => void }) {
     reader.readAsDataURL(blob);
     reader.onloadend = async () => {
       const base64Image = reader.result;
-      console.log(base64Image)
+      // console.log(base64Image)
       const payload = {
         image: base64Image,
       };

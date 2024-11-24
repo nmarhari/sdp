@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import requests
 import base64
+import json
+
 load_dotenv()
 # Set your OpenAI API key as an environment variable for security
 # Configuration for Dexcom API (replace with your values)
@@ -47,14 +49,17 @@ def upload_image():
     # Define the prompt
     prompt = (
         "How many grams of carbs are in the food in this image? "
-        "Respond in only JSON format with an integer corresponding to the amount of carbs."
+        "Respond in with an integer corresponding to the amount of carbs."
     )
 
     # Call OpenAI API
     try:
         response = openai_api_call(image_base64, prompt, openai_api_key)
-        return jsonify(response)
+        print(response.get("choices")[0].get("message").get("content").strip("`json~!@#$%^&*"))
+        return jsonify(response.get("choices")[0].get("message").get("content").strip("`json~!@#$%^&*"))
+        # return jsonify(response)
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
 
 
