@@ -50,6 +50,7 @@ def upload_image():
     prompt = (
         "How many grams of carbs are in the food in this image? "
         "Respond in with an integer corresponding to the amount of carbs."
+        "Estimate the grams of carbs for this photo 3 times and respond with the average of your estimations."
     )
 
     # Call OpenAI API
