@@ -171,7 +171,7 @@ const handleSaveGlucoseTarget = () => {
               Detected Carbs: {carbAmount}g
             </Text>
             <Text style={{ marginBottom: 10, fontSize: 16 }}>
-              Calculated Insulin: {calculatedInsulin} units
+              Calculated Insulin: {carbAmount / carbRatio} units
             </Text>
             <SaveButton
               onPress={() =>
@@ -205,9 +205,9 @@ const handleSaveGlucoseTarget = () => {
       >
         <ModalContainer>
           <ModalView>
-            <ModalTitle>Enter Glucose Ratio</ModalTitle>
+            <ModalTitle>Enter Carb to Insulin Ratio</ModalTitle>
             <Input
-              placeholder="Glucose Ratio"
+              placeholder="Carb to Insulin Ratio"
               keyboardType="numeric"
               value={carbRatio}
               onChangeText={setGlucoseLevel}
@@ -262,7 +262,7 @@ const handleSaveGlucoseTarget = () => {
         {!hasCarbRatio && (
           <Button secondary onPress={handleSetCarbRatio}>
             <Icon name="sliders" size={20} color="#ffffff" />
-            <ButtonText>SET GLUCOSE RATIO LEVELS</ButtonText>
+            <ButtonText>SET INSULIN TO CARB RATIO</ButtonText>
           </Button>
         )}
 
@@ -277,8 +277,6 @@ const handleSaveGlucoseTarget = () => {
         </FullScreenCamera>
       )}
 
-      {authCode && <Text>Authorization Code: {authCode}</Text>}
-      {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
       {isUserLoggedIn && hasCarbRatio && glucoseData.length > 0 && !isCameraOpen && (
         <>
