@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
-
+import * as Sharing from 'expo-sharing';
 let db;
 
 // Initialize the database with async opening
@@ -174,7 +174,7 @@ export const retrieveMeals = async (startTime, endTime) => {
   }
 };
 
-// Export table data as CSV
+
 export const exportTableAsCSV = async (tableName = "Meal") => {
   try {
     const rows = await db.getAllAsync(`SELECT * FROM ${tableName}`);
@@ -186,14 +186,24 @@ export const exportTableAsCSV = async (tableName = "Meal") => {
     });
 
     console.log(`CSV file created at ${fileUri}`);
+
+    // Share the file via the Files app
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(fileUri);
+    } else {
+      console.log("Sharing is not available on this device.");
+    }
+
     return fileUri;
   } catch (error) {
     console.log("Error writing CSV file", error);
     throw error;
   }
+
+
 };
 
-// Helper function to convert data to CSV format
+//function to convert data to CSV format
 const convertToCSV = (data) => {
   if (!data || data.length === 0) return '';
 
