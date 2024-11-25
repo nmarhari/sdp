@@ -160,6 +160,7 @@ def fetch_glucose_data():
         
         if response.status_code == 200:
             glucose_data = response.json()
+            print(glucose_data)
             return jsonify(glucose_data), 200
         else:
             print(f"Error from Dexcom API: {response.status_code}, {response.text}")

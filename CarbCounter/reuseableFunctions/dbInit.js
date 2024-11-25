@@ -33,7 +33,8 @@ const createTables = async () => {
         meal_id INTEGER PRIMARY KEY AUTOINCREMENT,
         time TEXT NOT NULL,
         meal TEXT NOT NULL,
-        glucose REAL NOT NULL
+        glucose REAL NOT NULL,
+        insulin_taken REAL NOT NULL
       );
       -- Initialize the default user row if it doesn't exist
       INSERT OR IGNORE INTO User (id, carb_to_insulin_ratio, glucose_target, dexcom_login) 
@@ -49,7 +50,7 @@ const createTables = async () => {
 // Insert a user with runAsync
 export const insertUser = async (carbToInsulinRatio, dexComLogin) => {
   try {
-    await db.execAsync(
+    await db.runAsync(
       `UPDATE User SET carb_to_insulin_ratio = ?, dexcom_login = ? WHERE id = 1;`,
       [carbToInsulinRatio, dexComLogin]
     );
@@ -62,9 +63,9 @@ export const insertUser = async (carbToInsulinRatio, dexComLogin) => {
 
 export const insertCarbRatio = async (carbToInsulinRatio) => {
   try {
-    await db.execAsync(
+    await db.runAsync(
       `UPDATE User SET carb_to_insulin_ratio = ? WHERE id = 1;`,
-      carbToInsulinRatio
+      [carbToInsulinRatio]
     );
     console.log("Carb-to-insulin ratio updated successfully", retrieveUser());
   } catch (error) {
@@ -78,9 +79,9 @@ export const insertCarbRatio = async (carbToInsulinRatio) => {
 export const insertGlucoseTarget = async (glucoseTarget) => {
   try {
     console.log("this is the target", glucoseTarget);
-    const result = await db.execAsync(
+    const result = await db.runAsync(
       `UPDATE User SET glucose_target = ? WHERE id = 1;`,
-      glucoseTarget
+      [glucoseTarget]
     );
     const user = await retrieveUser(); // Await the result of retrieveUser()
     console.log("Glucose target updated successfully", user, result);
@@ -93,9 +94,9 @@ export const insertGlucoseTarget = async (glucoseTarget) => {
 
 export const insertDexComLogin = async (dexComLogin) => {
   try {
-    await db.execAsync(
+    await db.runAsync(
       `UPDATE User SET dexcom_login = ? WHERE id = 1;`,
-      dexComLogin
+      [dexComLogin]
     );
     console.log("DexCom login updated successfully", retrieveUser());
   } catch (error) {
@@ -106,13 +107,14 @@ export const insertDexComLogin = async (dexComLogin) => {
 
 
 // Insert meal entry with runAsync
-export const insertMeal = async (time, meal, glucose) => {
+export const insertMeal = async (time, meal, glucose, insulin) => {
   try {
     const result = await db.runAsync(
-      `INSERT INTO Meal (time, meal, glucose) VALUES (?, ?, ?);`,
+      `INSERT INTO Meal (time, meal, glucose, insulin_taken) VALUES (?, ?, ?,?);`,
       time,
       meal,
-      glucose
+      glucose,
+      insulin
     );
     console.log("Meal inserted successfully, ID:", result.lastInsertRowId);
   } catch (error) {

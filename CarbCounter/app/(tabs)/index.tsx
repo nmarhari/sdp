@@ -3,7 +3,7 @@ import { Alert, Dimensions, Modal, Text, View } from "react-native";
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Camera from '@/components/camera';
-import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose, insertGlucoseTarget } from "@/reuseableFunctions/dbInit";
+import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose, insertMeal, insertGlucoseTarget } from "@/reuseableFunctions/dbInit";
 import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions';
 import { useDatabase } from '../../reuseableFunctions/DatabaseContext';
 import { LineChart } from 'react-native-gifted-charts';
@@ -11,6 +11,7 @@ import { LineChart } from 'react-native-gifted-charts';
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const Home = () => {
+  let lowerLimit, upperLimit
   const { request, promptAsync, authCode, error } = useDexcomAuth();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
@@ -23,6 +24,10 @@ const Home = () => {
   const [glucoseTarget, setGlucoseTarget] = useState('');
   const [carbRatio, setGlucoseLevel] = useState('');
   const photoPickerRef = useRef(null);
+  const [isMealModalVisible, setIsMealModalVisible] = useState(false);
+  const [carbAmount, setCarbAmount] = useState(0);
+  const [calculatedInsulin, setCalculatedInsulin] = useState(0);
+
   const db = useDatabase();
 
   const handleLogin = () => {
@@ -95,7 +100,9 @@ const handleSaveGlucoseTarget = () => {
       setTargetGlucose(target);
 
       const data = await fetchGlucoseData();
-      
+      lowerLimit = target ? target - 30 : 90;
+      upperLimit = target ? target + 30 : 150;
+    
       if (data && data.egvs && Array.isArray(data.egvs)) {
         const validEgvs = data.egvs.filter(item => item.value !== null && !isNaN(item.value));
         
@@ -114,20 +121,27 @@ const handleSaveGlucoseTarget = () => {
     }
   }
   
-  // Calculate the range for green shading
-  const lowerLimit = targetGlucose ? targetGlucose - 30 : 90;
-  const upperLimit = targetGlucose ? targetGlucose + 30 : 150;
-
-  // Dynamic line color based on glucose levels
-  const getLineColor = (value) => {
-    if (value < lowerLimit || value > upperLimit) {
-      const deviation = Math.abs(value - targetGlucose) - 30;
-      if (Number.isNaN(deviation)) console.log("Deviation is NaN");
-      const intensity = Math.min(deviation * 2, 255); // Scale intensity
-      return `rgb(255, ${255 - intensity}, ${255 - intensity})`;
-    }
-    return 'blue';
+  const handleSaveMeal = (carbs, glucose, insulin) => {
+    const mealDetails = {
+      time: new Date().toISOString(),
+      meal: carbs,
+      glucose,
+      insulin,
+    };
+  
+  insertMeal(mealDetails.time, mealDetails.meal, mealDetails.glucose, mealDetails.insulin)
+      .then(() => {
+        console.log("Meal saved successfully:", mealDetails);
+        setIsMealModalVisible(false);
+        Alert.alert("Success", "Meal details saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error saving meal:", error);
+        Alert.alert("Error", "Failed to save meal details.");
+      });
   };
+  
+  
 
   return (
     <Container>
@@ -136,6 +150,45 @@ const handleSaveGlucoseTarget = () => {
           <Icon name="camera" size={screenWidth * 0.2} color="#6b6b6b" onPress={handleCamera}/>
         </CameraPlaceholder>
       </CameraContainer>
+
+      <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isMealModalVisible}
+          onRequestClose={() => setIsMealModalVisible(false)}
+        >
+        <ModalContainer>
+          <ModalView>
+            <ModalTitle>Insulin Dosage Calculation</ModalTitle>
+            <Text style={{ marginBottom: 10, fontSize: 16 }}>
+              Detected Carbs: {carbAmount}g
+            </Text>
+            <Text style={{ marginBottom: 10, fontSize: 16 }}>
+              Calculated Insulin: {calculatedInsulin} units
+            </Text>
+            <SaveButton
+              onPress={() =>
+                handleSaveMeal(
+                  carbAmount,
+                  glucoseData[glucoseData.length - 1]?.value,
+                  calculatedInsulin
+                )
+              }
+            >
+              <SaveButtonText>Save Meal</SaveButtonText>
+            </SaveButton>
+            <SaveButton
+              style={{ backgroundColor: "#ccc", marginTop: 10 }}
+              onPress={() => setIsMealModalVisible(false)}
+            >
+              <SaveButtonText>Cancel</SaveButtonText>
+            </SaveButton>
+          </ModalView>
+        </ModalContainer>
+      </Modal>
+
+
+
 
       <Modal
         animationType="slide"
@@ -217,34 +270,42 @@ const handleSaveGlucoseTarget = () => {
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-      {/* {!isUserLoggedIn && !hasCarbRatio && glucoseData.length > 0 && (
+      {isUserLoggedIn && hasCarbRatio && glucoseData.length > 0 && (
+        <>
+        {/* Display the newest data point */}
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: 'black' }}>
+          Current Glucose Level: {glucoseData[glucoseData.length - 1]?.value || 'N/A'}
+        </Text>
+
+
+        {/* Line chart container */}
         <View style={{ marginVertical: 20, padding: 10, backgroundColor: '#f8f9fa' }}>
           <LineChart
             data={glucoseData}
             width={screenWidth * 0.9}
             height={250}
-            spacing={30}
+            spacing={2.5}
+            disableScroll={true}
             hideDataPoints
             areaChart
-            showYAxisIndices
+            showYAxisIndices={true}
             showXAxisIndices
-            thickness={3}
-            color={data => getLineColor(data.value)}
+            thickness={5}
+            color={'green'}
             yAxisTextStyle={{ color: 'gray' }}
             xAxisTextStyle={{ color: 'gray' }}
             noOfSections={4}
-            maxValue={upperLimit + 50}  // Extra padding for upper limit
-            minValue={lowerLimit - 50}  // Extra padding for lower limit
             adjustToHeight
             rulesType="solid"
             rulesColor="#ddd"
             backgroundColor="white"
             yAxisOffset={10}
             hideAxesAndRules
-            colorFill={['#a3e4a4']}  // Green fill within limits
+            colorFill={['#a3e4a4']} // Green fill within limits
           />
         </View>
-      )} */}
+      </>
+    )}
     </Container>
   );
 };
