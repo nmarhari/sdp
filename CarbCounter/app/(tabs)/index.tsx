@@ -31,7 +31,9 @@ const Home = () => {
   const db = useDatabase();
 
   const handleCarbsDetected = (carbs) => {
-    setCarbAmount(carbs);
+    console.log(carbs);
+    setIsCameraOpen(false);
+    setCarbAmount(JSON.parse(carbs.replace(/'/g, '"')).carbs);
     setIsMealModalVisible(true);
   }
   const handleLogin = () => {
@@ -94,6 +96,7 @@ const handleSaveGlucoseTarget = () => {
     loadData();
   }, [isUserLoggedIn]);
 
+  useEffect(()=> {}, [isUserLoggedIn])
   async function loadData() {
     try {
       const user = await retrieveUser();

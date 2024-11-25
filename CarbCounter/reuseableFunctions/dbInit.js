@@ -17,10 +17,10 @@ const executeSqlAsync = async (sql, params = []) => {
 
 const createTables = async () => {
   try {
-    // await db.execAsync(`
-    //   DROP TABLE IF EXISTS User;
-    //   DROP TABLE IF EXISTS Meal;
-    // `);
+    await db.execAsync(`
+      DROP TABLE IF EXISTS User;
+      DROP TABLE IF EXISTS Meal;
+    `);
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS User (

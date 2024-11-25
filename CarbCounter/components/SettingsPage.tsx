@@ -78,7 +78,7 @@ const SettingsPage = () => {
   };
 
   const handleExportMealData = () => {
-    exportMealData()
+    exportTableAsCSV()
       .then((filePath) => {
         Alert.alert("Success", `Meal data exported to: ${filePath}`);
       })
