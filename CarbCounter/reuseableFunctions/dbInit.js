@@ -144,6 +144,22 @@ export const retrieveUser = async () => {
 
 export const retrieveTargetGlucose = async () => {
   try {
+    const user = await db.getFirstAsync(`SELECT glucose_target FROM User;`);
+    if (user) {
+      console.log("User retrieved:", user);
+      return user;
+    } else {
+      console.log("No user found.");
+      return null;
+    }
+  } catch (error) {
+    console.log("Error retrieving user", error);
+    return null;
+  }
+};
+
+export const retrieveCarbRatio = async () => {
+  try {
     const user = await db.getFirstAsync(`SELECT carb_to_insulin_ratio FROM User;`);
     if (user) {
       console.log("User retrieved:", user);

@@ -3,7 +3,7 @@ import { Alert, Dimensions, Modal, Text, View } from "react-native";
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Camera from '@/components/camera';
-import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose, insertMeal, insertGlucoseTarget } from "@/reuseableFunctions/dbInit";
+import { retrieveUser, insertCarbRatio, insertDexComLogin, retrieveTargetGlucose, retrieveCarbRatio, insertMeal, insertGlucoseTarget } from "@/reuseableFunctions/dbInit";
 import { useDexcomAuth, fetchGlucoseData } from '../../reuseableFunctions/loginFunctions';
 import { useDatabase } from '../../reuseableFunctions/DatabaseContext';
 import { LineChart } from 'react-native-gifted-charts';
@@ -97,6 +97,12 @@ const handleSaveGlucoseTarget = () => {
   }, [isUserLoggedIn]);
 
   useEffect(()=> {}, [isUserLoggedIn])
+
+  useEffect(() => {
+      retrieveCarbRatio().then((ratio) => {
+      setGlucoseData(ratio)
+    });
+  }, [])
   async function loadData() {
     try {
       const user = await retrieveUser();
@@ -178,7 +184,7 @@ const handleSaveGlucoseTarget = () => {
                 handleSaveMeal(
                   carbAmount,
                   glucoseData[glucoseData.length - 1]?.value,
-                  calculatedInsulin
+                  (carbAmount / carbRatio)
                 )
               }
             >
