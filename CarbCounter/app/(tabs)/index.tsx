@@ -30,6 +30,10 @@ const Home = () => {
 
   const db = useDatabase();
 
+  const handleCarbsDetected = (carbs) => {
+    setCarbAmount(carbs);
+    setIsMealModalVisible(true);
+  }
   const handleLogin = () => {
     if (request) {
       promptAsync().then(loadData);
@@ -263,14 +267,17 @@ const handleSaveGlucoseTarget = () => {
 
       {isCameraOpen && (
         <FullScreenCamera>
-          <Camera onClose={() => setIsCameraOpen(false)} />
+              <Camera 
+              onClose={() => setIsCameraOpen(false)} 
+              onCarbsDetected={handleCarbsDetected} 
+            />
         </FullScreenCamera>
       )}
 
       {authCode && <Text>Authorization Code: {authCode}</Text>}
       {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-      {isUserLoggedIn && hasCarbRatio && glucoseData.length > 0 && (
+      {isUserLoggedIn && hasCarbRatio && glucoseData.length > 0 && !isCameraOpen && (
         <>
         {/* Display the newest data point */}
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: 'black' }}>

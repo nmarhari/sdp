@@ -10,7 +10,12 @@ type PhotoPickerRef = {
   openImagePicker: () => void;
 };
 
-export default function Camera({ onClose }: { onClose: () => void }) {
+interface CameraProps {
+  onClose: () => void;
+  onCarbsDetected?: (carbs: number) => void;
+}
+
+export default function Camera({ onClose, onCarbsDetected }: CameraProps) {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<any>(null);
@@ -67,7 +72,7 @@ export default function Camera({ onClose }: { onClose: () => void }) {
   
   const uploadPhoto = async (photoUri: string) => {
     // const formData = new FormData();
-
+    console.log("this called the function")
     const response = await fetch(photoUri);
     const blob = await response.blob();
 
@@ -79,6 +84,7 @@ export default function Camera({ onClose }: { onClose: () => void }) {
       const payload = {
         image: base64Image,
       };
+      console.log("this should be working???")
       try{
         const response = await fetch('http://127.0.0.1:5000/upload-image', {
           method: 'POST',
@@ -93,6 +99,9 @@ export default function Camera({ onClose }: { onClose: () => void }) {
           throw new Error(`Upload failed: ${response.status}`);
         };
         const result = await response.json();
+        if (onCarbsDetected) {
+          onCarbsDetected(result);
+        }
         console.log('Response from server:', result);
       } catch (error) {
           console.error('Error uploading photo:', error.message || error);
