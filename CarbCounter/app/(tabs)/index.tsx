@@ -39,7 +39,7 @@ const Home = () => {
   const handleLogin = () => {
     if (request) {
       promptAsync().then(loadData);
-      setIsUserLoggedIn(true);
+      setTimeout(() => {setIsUserLoggedIn(true)}, 4000);
     } else {
       Alert.alert("Login request is not ready");
     }
