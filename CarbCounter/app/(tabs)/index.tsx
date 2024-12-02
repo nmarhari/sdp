@@ -100,7 +100,7 @@ const handleSaveGlucoseTarget = () => {
 
   useEffect(() => {
       retrieveCarbRatio().then((ratio) => {
-      setGlucoseData(ratio)
+      setGlucoseLevel(ratio.carb_to_insulin_ratio);
     });
   }, [])
   async function loadData() {
@@ -177,7 +177,7 @@ const handleSaveGlucoseTarget = () => {
               Detected Carbs: {carbAmount}g
             </Text>
             <Text style={{ marginBottom: 10, fontSize: 16 }}>
-              Calculated Insulin: {carbAmount / carbRatio} units
+              Calculated Insulin: {(carbAmount / carbRatio).toFixed(2)} units
             </Text>
             <SaveButton
               onPress={() =>
